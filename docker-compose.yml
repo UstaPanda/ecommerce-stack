@@ -42,6 +42,16 @@ services:
       SPRING_FLYWAY_BASELINE_ON_MIGRATE: "true"
       SPRING_FLYWAY_BASELINE_VERSION: "7"
 
+      # Feature Toggles (Set to false for easier initial setup)
+      RECAPTCHA_ENABLED: "false"
+      EMAIL_VERIFICATION_ENABLED: "false"
+
+      # Mandatory Keys (Dummy values allowed if features disabled)
+      RECAPTCHA_SECRET_KEY: ${RECAPTCHA_SECRET_KEY:-dummy_key}
+      STRIPE_SECRET_KEY: ${STRIPE_SECRET_KEY:-dummy_key}
+      CRYPTO_MERCHANT_WALLET: ${CRYPTO_MERCHANT_WALLET:-0x0000000000000000000000000000000000000000}
+      STORAGE_LOCAL_UPLOAD_DIR: ${STORAGE_LOCAL_UPLOAD_DIR:-/app/uploads}
+
       # Mail Settings
       SPRING_MAIL_HOST: ${MAIL_HOST:-smtp.gmail.com}
       SPRING_MAIL_PORT: ${MAIL_PORT:-587}
@@ -52,6 +62,8 @@ services:
       # Google OAuth2
       SPRING_SECURITY_OAUTH2_CLIENT_REGISTRATION_GOOGLE_CLIENT_ID: ${GOOGLE_OAUTH_CLIENT_ID}
       SPRING_SECURITY_OAUTH2_CLIENT_REGISTRATION_GOOGLE_CLIENT_SECRET: ${GOOGLE_OAUTH_CLIENT_SECRET}
+    volumes:
+      - ./backend-uploads:/app/uploads
     depends_on:
       db:
         condition: service_healthy
