@@ -1,0 +1,13 @@
+langgraph
+langchain
+langchain-google-genai
+psycopg2-binary
+pandas
+plotly
+python-dotenv
+fastapi
+uvicorn
+chainlit
+PyJWT
+gunicorn
+uvicorn

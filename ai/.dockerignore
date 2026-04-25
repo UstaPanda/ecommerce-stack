@@ -1,0 +1,17 @@
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.env
+.git
+.gitignore
+venv/
+.venv/
+api_test.log
+look.PNG
+*.pdf
+admin_token.txt
+user_token.txt
+token.txt
+ecommerce_backend/
+full_backup/

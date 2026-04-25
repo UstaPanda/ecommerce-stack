@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <title>reCAPTCHA v3 Test</title>
+    <script src="https://www.google.com/recaptcha/api.js?render=6Lfm3Y8sAAAAACUKWhJxsvckBe5Yy1VObiiqy4M-"></script>
+    <style>
+        body { font-family: Arial, sans-serif; max-width: 500px; margin: 60px auto; padding: 20px; }
+        button { margin-top: 16px; padding: 10px 20px; cursor: pointer; font-size: 14px; }
+        #token-box { margin-top: 16px; display: none; }
+        #token-text { width: 100%; height: 80px; font-size: 12px; word-break: break-all; }
+        .copied { color: green; font-weight: bold; margin-left: 8px; }
+    </style>
+</head>
+<body>
+    <h2>reCAPTCHA v3 Token Üretici</h2>
+    <p>Butona tıkla, token üretilir, Postman'e yapıştır.</p>
+
+    <button onclick="generateToken()">Token Üret</button>
+
+    <div id="token-box">
+        <p><strong>Token:</strong></p>
+        <textarea id="token-text" readonly></textarea>
+        <br>
+        <button onclick="copyToken()">Kopyala</button>
+        <span id="copy-status"></span>
+    </div>
+
+    <script>
+        function generateToken() {
+            grecaptcha.ready(function () {
+                grecaptcha.execute('6Lfm3Y8sAAAAACUKWhJxsvckBe5Yy1VObiiqy4M-', { action: 'login' }).then(function (token) {
+                    document.getElementById('token-text').value = token;
+                    document.getElementById('token-box').style.display = 'block';
+                    document.getElementById('copy-status').textContent = '';
+                });
+            });
+        }
+
+        function copyToken() {
+            const text = document.getElementById('token-text');
+            text.select();
+            document.execCommand('copy');
+            document.getElementById('copy-status').textContent = '✓ Kopyalandı!';
+            document.getElementById('copy-status').className = 'copied';
+        }
+    </script>
+</body>
+</html>

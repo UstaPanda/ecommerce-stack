@@ -1,0 +1,34 @@
+# Database
+spring.datasource.url=jdbc:postgresql://localhost:5432/ecommerce_analytics
+spring.datasource.username=postgres
+spring.datasource.password=YOUR_DB_PASSWORD
+spring.jpa.hibernate.ddl-auto=update
+spring.jpa.show-sql=true
+spring.flyway.enabled=false
+
+# JWT
+jwt.secret=YOUR_BASE64_256BIT_SECRET
+jwt.expiration=900000
+
+# Mail (Gmail SMTP)
+spring.mail.host=smtp.gmail.com
+spring.mail.port=587
+spring.mail.username=YOUR_GMAIL_ADDRESS
+spring.mail.password=YOUR_GMAIL_APP_PASSWORD
+spring.mail.properties.mail.smtp.auth=true
+spring.mail.properties.mail.smtp.starttls.enable=true
+app.mail.from=DataPulse <YOUR_GMAIL_ADDRESS>
+
+# Google OAuth2
+spring.security.oauth2.client.registration.google.client-id=YOUR_GOOGLE_CLIENT_ID
+spring.security.oauth2.client.registration.google.client-secret=YOUR_GOOGLE_CLIENT_SECRET
+spring.security.oauth2.client.registration.google.scope=email,profile
+
+# App
+app.base-url=http://localhost:8080
+
+# AI Chatbot (Python/LangGraph service)
+chatbot.service.url=http://localhost:8000
+
+# Debug
+logging.level.org.springframework.security=DEBUG

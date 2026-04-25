@@ -1,0 +1,27 @@
+# Environment variables (Sensitive)
+.env
+
+# Python cache
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+
+# Virtual environment
+venv/
+.venv/
+env/
+
+# IDE files
+.vscode/
+.idea/
+
+# Tokens and temporary test files
+*_token.txt
+token.txt
+api_test.log
+verify_results.py
+test_rbac.py
+
+# Docker logs
+*.log
