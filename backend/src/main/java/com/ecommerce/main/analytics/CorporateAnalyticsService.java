@@ -37,24 +37,25 @@ public class CorporateAnalyticsService {
                                                          LocalDateTime from, LocalDateTime to) {
         assertStoreAccess(storeId, requestorEmail);
 
-        LocalDateTime effectiveFrom = from != null ? from : LocalDateTime.of(2000, 1, 1, 0, 0);
-        LocalDateTime effectiveTo = to != null ? to : LocalDateTime.now();
-
         Store store = storeRepository.findById(storeId)
                 .orElseThrow(() -> new IllegalArgumentException("Store not found: " + storeId));
 
-        long totalOrders     = orderRepository.countByStoreId(storeId);
-        long pendingOrders   = orderRepository.countByStoreIdAndStatus(storeId, OrderStatus.PENDING);
-        long cancelledOrders = orderRepository.countByStoreIdAndStatus(storeId, OrderStatus.CANCELLED);
-        Double rev           = orderRepository.sumRevenueByStore(storeId);
+        long totalOrders     = orderRepository.countByStoreIdAndDateRange(storeId, from, to);
+        long pendingOrders   = orderRepository.orderStatusDistributionByStoreAndDateRange(storeId, from, to).stream()
+                .filter(r -> r[0].toString().equals("PENDING")).map(r -> ((Number) r[1]).longValue()).findFirst().orElse(0L);
+        long cancelledOrders = orderRepository.orderStatusDistributionByStoreAndDateRange(storeId, from, to).stream()
+                .filter(r -> r[0].toString().equals("CANCELLED")).map(r -> ((Number) r[1]).longValue()).findFirst().orElse(0L);
+        
+        Double rev           = orderRepository.sumRevenueByStoreAndDateRange(storeId, from, to);
         double totalRevenue  = rev != null ? rev : 0.0;
+        
         long totalProducts   = productRepository.countByStoreId(storeId);
         long lowStock        = productRepository.findByStoreIdAndStockQuantityLessThan(storeId, 10).size();
         Double avgRating     = reviewRepository.avgRatingByStore(storeId);
 
         // Revenue by day
         List<CorporateAnalyticsResponse.RevenueByDay> revenueByDay =
-                orderRepository.revenueByDayForStore(storeId, effectiveFrom, effectiveTo).stream()
+                orderRepository.revenueByDayForStore(storeId, from, to).stream()
                         .map(row -> new CorporateAnalyticsResponse.RevenueByDay(
                                 row[0].toString(),
                                 ((Number) row[1]).doubleValue()
@@ -74,7 +75,7 @@ public class CorporateAnalyticsService {
 
         // Order status distribution
         List<CorporateAnalyticsResponse.OrderStatusCount> statusDist =
-                orderRepository.orderStatusDistributionByStore(storeId).stream()
+                orderRepository.orderStatusDistributionByStoreAndDateRange(storeId, from, to).stream()
                         .map(row -> new CorporateAnalyticsResponse.OrderStatusCount(
                                 row[0].toString(),
                                 ((Number) row[1]).longValue()
