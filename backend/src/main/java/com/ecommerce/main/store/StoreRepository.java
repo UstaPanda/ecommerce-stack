@@ -15,7 +15,7 @@ public interface StoreRepository extends JpaRepository<Store, Long> {
     long countByStatus(StoreStatus status);
 
     @Query("SELECT s.id, s.name, COUNT(o.id), COALESCE(SUM(o.grandTotal), 0) " +
-           "FROM Store s LEFT JOIN Order o ON o.store.id = s.id AND o.status != 'CANCELLED' " +
+           "FROM Store s LEFT JOIN Order o ON o.store.id = s.id AND o.status NOT IN ('CANCELLED', 'RETURNED') " +
            "GROUP BY s.id, s.name ORDER BY SUM(o.grandTotal) DESC NULLS LAST")
     List<Object[]> storeRevenueComparison();
 }

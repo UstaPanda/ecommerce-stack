@@ -55,8 +55,12 @@ public class AdminService {
         long totalOrders     = orderRepository.count();
         long pendingOrders   = orderRepository.countByStatus(OrderStatus.PENDING);
         long cancelledOrders = orderRepository.countByStatus(OrderStatus.CANCELLED);
-        Double revenueRaw    = orderRepository.sumTotalRevenue();
+        long returnedOrders  = orderRepository.countByStatus(OrderStatus.RETURNED);
+        
+        // Net Revenue (Excluding Cancelled and Returned)
+        Double revenueRaw    = orderRepository.sumNetRevenue();
         double totalRevenue  = revenueRaw != null ? revenueRaw : 0.0;
+        
         long totalProducts   = productRepository.count();
         long totalReviews    = reviewRepository.count();
 

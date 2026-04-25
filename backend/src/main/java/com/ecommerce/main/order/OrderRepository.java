@@ -21,16 +21,19 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
     long countByStoreId(Long storeId);
     long countByStoreIdAndStatus(Long storeId, OrderStatus status);
 
+    @Query("SELECT SUM(o.grandTotal) FROM Order o WHERE o.status NOT IN ('CANCELLED', 'RETURNED')")
+    Double sumNetRevenue();
+
     @Query("SELECT SUM(o.grandTotal) FROM Order o WHERE o.status != 'CANCELLED'")
     Double sumTotalRevenue();
 
-    @Query("SELECT SUM(o.grandTotal) FROM Order o WHERE o.store.id = :storeId AND o.status != 'CANCELLED'")
+    @Query("SELECT SUM(o.grandTotal) FROM Order o WHERE o.store.id = :storeId AND o.status NOT IN ('CANCELLED', 'RETURNED')")
     Double sumRevenueByStore(@Param("storeId") Long storeId);
 
     // Revenue grouped by day for a store within a date range
     @Query("SELECT CAST(o.createdAt AS date), SUM(o.grandTotal) " +
            "FROM Order o WHERE o.store.id = :storeId " +
-           "AND o.createdAt BETWEEN :from AND :to AND o.status != 'CANCELLED' " +
+           "AND o.createdAt BETWEEN :from AND :to AND o.status NOT IN ('CANCELLED', 'RETURNED') " +
            "GROUP BY CAST(o.createdAt AS date) ORDER BY CAST(o.createdAt AS date)")
     List<Object[]> revenueByDayForStore(@Param("storeId") Long storeId,
                                          @Param("from") LocalDateTime from,
@@ -40,14 +43,14 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
     @Query("SELECT o.status, COUNT(o) FROM Order o WHERE o.store.id = :storeId GROUP BY o.status")
     List<Object[]> orderStatusDistributionByStore(@Param("storeId") Long storeId);
 
-    @Query("SELECT SUM(o.grandTotal) FROM Order o WHERE o.store.id = :storeId AND o.createdAt BETWEEN :from AND :to AND o.status != 'CANCELLED'")
+    @Query("SELECT SUM(o.grandTotal) FROM Order o WHERE o.store.id = :storeId AND o.createdAt BETWEEN :from AND :to AND o.status NOT IN ('CANCELLED', 'RETURNED')")
     Double sumRevenueByStoreAndDateRange(@Param("storeId") Long storeId,
                                          @Param("from") LocalDateTime from,
                                          @Param("to") LocalDateTime to);
 
     // Individual: total order count + total spend
     @Query("SELECT COUNT(o), COALESCE(SUM(o.grandTotal), 0) FROM Order o " +
-           "WHERE o.user.email = :email AND o.status != 'CANCELLED'")
+           "WHERE o.user.email = :email AND o.status NOT IN ('CANCELLED', 'RETURNED')")
     List<Object[]> spendSummaryByUser(@Param("email") String email);
 
     // Individual: order status distribution
@@ -56,7 +59,7 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
 
     // Individual: monthly spending trend (YYYY-MM)
     @Query("SELECT FUNCTION('TO_CHAR', o.createdAt, 'YYYY-MM'), COALESCE(SUM(o.grandTotal), 0) " +
-           "FROM Order o WHERE o.user.email = :email AND o.status != 'CANCELLED' " +
+           "FROM Order o WHERE o.user.email = :email AND o.status NOT IN ('CANCELLED', 'RETURNED') " +
            "GROUP BY FUNCTION('TO_CHAR', o.createdAt, 'YYYY-MM') " +
            "ORDER BY FUNCTION('TO_CHAR', o.createdAt, 'YYYY-MM')")
     List<Object[]> monthlySpendByUser(@Param("email") String email);
