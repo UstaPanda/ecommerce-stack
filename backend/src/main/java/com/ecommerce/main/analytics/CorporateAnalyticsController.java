@@ -30,11 +30,10 @@ public class CorporateAnalyticsController {
             @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime to,
             Authentication auth) {
 
-        LocalDateTime effectiveTo   = to   != null ? to   : LocalDateTime.now();
-        LocalDateTime effectiveFrom = from != null ? from : effectiveTo.minusDays(30);
-
+        // If 'from' is null, it signals a 'Lifetime' request. 
+        // The service will handle the default (e.g., Year 2000).
         return ResponseEntity.ok(
-                analyticsService.getStoreAnalytics(storeId, auth.getName(), effectiveFrom, effectiveTo)
+                analyticsService.getStoreAnalytics(storeId, auth.getName(), from, to)
         );
     }
 }
