@@ -132,6 +132,7 @@ def sql_agent_node(state: AgentState):
                        "- INDIVIDUAL: Filter by user_id = {user_id} ONLY on personal tables: 'orders', 'customer_profiles', 'carts', 'cart_items' (join carts on carts.user_id).\n"
                        "  * NEVER add user_id filter when querying 'products', 'categories', or 'reviews'.\n\n"
                        "IMPORTANT RULES:\n"
+                       "- REVENUE CALCULATIONS: When calculating revenue, total sales, or earnings, ALWAYS exclude orders with status 'CANCELLED' or 'RETURNED' (e.g., status NOT IN ('CANCELLED', 'RETURNED')) unless explicitly asked for gross values.\n"
                        "- For popular/best-selling products: use LEFT JOIN, never filter by user_id. Example: SELECT p.id, p.name, p.price, COALESCE(COUNT(oi.id),0) AS order_count, COALESCE(AVG(r.rating),0) AS avg_rating FROM products p LEFT JOIN order_items oi ON oi.product_id = p.id LEFT JOIN reviews r ON r.product_id = p.id GROUP BY p.id ORDER BY order_count DESC, avg_rating DESC LIMIT 10\n"
                        "- Always use LEFT JOIN (never INNER JOIN) for optional data tables like order_items, reviews, shipments.\n"
                        "- Never use SQL line comments (--) inside the query.\n\n"
