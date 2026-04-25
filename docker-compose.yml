@@ -40,6 +40,7 @@ services:
       # Flyway Fix for pre-existing DB
       SPRING_FLYWAY_ENABLED: "true"
       SPRING_FLYWAY_BASELINE_ON_MIGRATE: "true"
+      SPRING_FLYWAY_BASELINE_VERSION: "7"
 
       # Mail Settings
       SPRING_MAIL_HOST: ${MAIL_HOST:-smtp.gmail.com}
@@ -57,6 +58,7 @@ services:
 
   ai:
     build: ./ai
+    restart: always
     # No ports exposed to public
     environment:
       DB_URL: postgresql://${DB_USER:-postgres}:${DB_PASSWORD:-password}@db:5432/${DB_NAME:-ecommerce_analytics}
