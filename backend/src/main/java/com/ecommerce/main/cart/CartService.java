@@ -141,7 +141,7 @@ public class CartService {
         for (CartItem cartItem : cart.getItems()) {
             if (cartItem.getProduct().getStockQuantity() < cartItem.getQuantity()) {
                 throw new IllegalStateException(
-                    "Insufficient stock for: " + cartItem.getProduct().getName());
+                        "Yetersiz stok: " + cartItem.getProduct().getName());
             }
             total += cartItem.getQuantity() * cartItem.getProduct().getUnitPrice();
         }

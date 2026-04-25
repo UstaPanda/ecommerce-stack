@@ -81,7 +81,13 @@ public class AdminService {
 
     @Transactional(readOnly = true)
     public Page<UserResponse> listUsers(Role role, String keyword, Pageable pageable) {
-        return userRepository.searchUsers(role, keyword, pageable).map(UserResponse::from);
+        if (keyword != null && !keyword.isBlank()) {
+            return userRepository.searchUsers(role, keyword, pageable).map(UserResponse::from);
+        } else if (role != null) {
+            return userRepository.findByRoleType(role, pageable).map(UserResponse::from);
+        } else {
+            return userRepository.findAll(pageable).map(UserResponse::from);
+        }
     }
 
     @Transactional(readOnly = true)
