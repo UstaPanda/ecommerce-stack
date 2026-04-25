@@ -46,32 +46,6 @@ public class AdminService {
 
     @Transactional(readOnly = true)
     public AdminAnalyticsResponse getPlatformAnalytics() {
-        // Get current user to check role for scoped access
-        org.springframework.security.core.Authentication auth = 
-            org.springframework.security.core.context.SecurityContextHolder.getContext().getAuthentication();
-        String email = auth.getName();
-        User user = userRepository.findByEmail(email).orElse(null);
-
-        if (user != null && user.getRoleType() == Role.CORPORATE) {
-            // For Corporate users, filter every stat to their specific store
-            List<Store> myStores = storeRepository.findByOwnerEmail(email);
-            if (!myStores.isEmpty()) {
-                Store s = myStores.get(0);
-                long storeOrders = orderRepository.countByStoreId(s.getId());
-                long storeProducts = productRepository.countByStoreId(s.getId());
-                Double storeRevenue = orderRepository.sumRevenueByStore(s.getId());
-                
-                return new AdminAnalyticsResponse(
-                    0, 0, 0, // Hidden for Corporate
-                    1, 1, 0, // Active Store
-                    storeOrders, 0, 0, // Orders
-                    storeRevenue != null ? storeRevenue : 0.0,
-                    storeProducts, 0, // Products/Reviews
-                    List.of(new AdminAnalyticsResponse.StoreComparisonEntry(s.getId(), s.getName(), storeOrders, storeRevenue != null ? storeRevenue : 0.0))
-                );
-            }
-        }
-
         // --- Standard Admin Logic ---
         long totalUsers      = userRepository.count();
         long individualUsers = userRepository.countByRoleType(Role.INDIVIDUAL);

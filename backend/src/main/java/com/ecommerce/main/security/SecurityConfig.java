@@ -57,7 +57,6 @@ public class SecurityConfig {
                         "/uploads/**",
                         "/error", "/oauth2/**", "/login/oauth2/**",
                         "/swagger-ui/**", "/swagger-ui.html", "/v3/api-docs/**").permitAll()
-                .requestMatchers("/api/admin/analytics", "/api/admin/stores/**").hasAnyAuthority("ROLE_ADMIN", "ROLE_CORPORATE")
                 .requestMatchers("/api/admin/**").hasAuthority("ROLE_ADMIN")
                 .anyRequest().authenticated()
             )
