@@ -109,8 +109,7 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
     @Query("SELECT p.id, p.name, SUM(oi.quantity), SUM(oi.quantity * oi.unitPrice) " +
            "FROM OrderItem oi JOIN oi.product p " +
            "WHERE p.store.id = :storeId AND oi.order.status != 'CANCELLED' " +
-           "AND (:from IS NULL OR oi.order.createdAt >= :from) " +
-           "AND (:to IS NULL OR oi.order.createdAt <= :to) " +
+           "AND oi.order.createdAt >= :from AND oi.order.createdAt <= :to " +
            "GROUP BY p.id, p.name ORDER BY SUM(oi.quantity) DESC")
     List<Object[]> topSellingByStoreAndDateRange(@Param("storeId") Long storeId, 
                                                   @Param("from") java.time.LocalDateTime from, 
