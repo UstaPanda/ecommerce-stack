@@ -1,5 +1,10 @@
 package com.ecommerce.main.chat;
 
+import jakarta.servlet.http.HttpServletRequest;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ecommerce.main.store.StoreRepository;
 import com.ecommerce.main.user.Role;
@@ -21,6 +26,7 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class ChatService {
 
+    private static final Logger logger = LoggerFactory.getLogger(ChatService.class);
     private final ChatSessionRepository sessionRepository;
     private final UserRepository userRepository;
     private final StoreRepository storeRepository;
@@ -38,12 +44,15 @@ public class ChatService {
     public ChatAskResponse ask(String email, ChatAskRequest request) {
         User user = findUser(email);
         
-        // Extract token from security context to forward to Python
+        // Extract token directly from the current request header to forward to Python
         String token = null;
-        org.springframework.security.core.Authentication auth = 
-            org.springframework.security.core.context.SecurityContextHolder.getContext().getAuthentication();
-        if (auth != null && auth.getCredentials() instanceof String) {
-            token = (String) auth.getCredentials();
+        ServletRequestAttributes attrs = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
+        if (attrs != null) {
+            HttpServletRequest currentRequest = attrs.getRequest();
+            String authHeader = currentRequest.getHeader("Authorization");
+            if (authHeader != null && authHeader.startsWith("Bearer ")) {
+                token = authHeader.substring(7);
+            }
         }
 
         // Get or create session
@@ -182,7 +191,10 @@ public class ChatService {
             RestClient client = RestClient.create();
             var spec = client.post()
                     .uri(chatbotServiceUrl + "/api/chat/ask")
-                    .contentType(MediaType.APPLICATION_JSON);
+                    .contentType(MediaType.APPLICATION_JSON)
+                    // Explicitly override headers that might cause "Unsupported upgrade request" in Gunicorn/Uvicorn
+                    .header("Connection", "close")
+                    .header("Upgrade", "");
             
             if (token != null) {
                 spec.header("Authorization", "Bearer " + token);
@@ -192,6 +204,7 @@ public class ChatService {
                     .retrieve()
                     .body(AiServiceResponse.class);
         } catch (Exception e) {
+            logger.error("Failed to call AI service at {}: {}", chatbotServiceUrl, e.getMessage());
             // AI service unavailable — return graceful fallback
             return new AiServiceResponse(
                     "AI service is currently unavailable. Please try again later.",
