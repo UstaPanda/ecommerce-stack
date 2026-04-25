@@ -85,7 +85,8 @@ services:
     build: ./frontend
     # No ports exposed to public
     environment:
-      ANGULAR_ALLOWED_HOSTS: "*"
+      NG_ALLOWED_HOSTS: ${NG_ALLOWED_HOSTS:-*}
+      NG_TRUST_PROXY_HEADERS: "true"
     depends_on:
       - backend
       - ai
