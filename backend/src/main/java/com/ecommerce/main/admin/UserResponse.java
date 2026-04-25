@@ -9,32 +9,26 @@ public record UserResponse(
         String name,
         String email,
         String role,
-        String roleType,
         String status,
-        String provider,
+        String gender,
         boolean verified,
         boolean twoFactorEnabled,
-        int failedLoginAttempts,
-        LocalDateTime lockedUntil,
         LocalDateTime createdAt
 ) {
     public static UserResponse from(User u) {
-        String roleName = u.getRoleType().name();
         boolean suspended = u.getLockedUntil() != null
-                && u.getLockedUntil().isAfter(LocalDateTime.now().plusYears(50));
+                && u.getLockedUntil().isAfter(LocalDateTime.now());
         String status = suspended ? "SUSPENDED" : "ACTIVE";
+        
         return new UserResponse(
                 u.getId(),
-                u.getName(),
+                u.getName() != null ? u.getName() : "İsimsiz Kullanıcı",
                 u.getEmail(),
-                roleName,
-                roleName,
+                u.getRoleType().name(),
                 status,
-                u.getProvider().name(),
+                "UNKNOWN",
                 u.isVerified(),
                 u.isTwoFactorEnabled(),
-                u.getFailedLoginAttempts(),
-                u.getLockedUntil(),
                 u.getCreatedAt()
         );
     }

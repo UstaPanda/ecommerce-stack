@@ -11,6 +11,8 @@ public record OrderResponse(
         String storeName,
         OrderStatus status,
         Double grandTotal,
+        Double subtotalSum,
+        Double discountAmount,
         String paymentMethod,
         String shippingAddress,
         String fulfilment,
@@ -33,17 +35,24 @@ public record OrderResponse(
     ) {}
 
     public static OrderResponse from(Order order) {
-        List<OrderItemResponse> itemResponses = order.getItems().stream()
-                .map(item -> new OrderItemResponse(
-                        item.getId(),
-                        item.getProduct().getId(),
-                        item.getProduct().getName(),
-                        item.getProduct().getSku(),
-                        item.getQuantity(),
-                        item.getUnitPrice(),
-                        item.getQuantity() * item.getUnitPrice()
-                ))
-                .toList();
+        double subtotalSum = 0.0;
+        List<OrderItemResponse> itemResponses = new java.util.ArrayList<>();
+        
+        for (OrderItem item : order.getItems()) {
+            double itemSubtotal = item.getQuantity() * item.getUnitPrice();
+            subtotalSum += itemSubtotal;
+            itemResponses.add(new OrderItemResponse(
+                    item.getId(),
+                    item.getProduct().getId(),
+                    item.getProduct().getName(),
+                    item.getProduct().getSku(),
+                    item.getQuantity(),
+                    item.getUnitPrice(),
+                    itemSubtotal
+            ));
+        }
+
+        double discountAmount = Math.max(0, subtotalSum - order.getGrandTotal());
 
         return new OrderResponse(
                 order.getId(),
@@ -53,6 +62,8 @@ public record OrderResponse(
                 order.getStore().getName(),
                 order.getStatus(),
                 order.getGrandTotal(),
+                subtotalSum,
+                discountAmount,
                 order.getPaymentMethod(),
                 order.getShippingAddress(),
                 order.getFulfilment(),
