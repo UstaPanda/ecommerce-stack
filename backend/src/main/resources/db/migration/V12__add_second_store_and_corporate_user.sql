@@ -33,15 +33,13 @@ INSERT INTO stores (
     name, 
     description, 
     status, 
-    created_at, 
-    updated_at
+    created_at
 )
 SELECT 
     id, 
     'Elite Tech Solutions', 
     'Premium gadgets and accessories for tech enthusiasts.', 
-    'ACTIVE', 
-    NOW(), 
+    'OPEN', 
     NOW()
 FROM users 
 WHERE email = 'corporate@example.com'
