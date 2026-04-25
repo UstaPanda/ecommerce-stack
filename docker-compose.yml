@@ -37,6 +37,10 @@ services:
       CHATBOT_SERVICE_URL: http://ai:8001
       APP_BASE_URL: http://localhost
 
+      # Flyway Fix for pre-existing DB
+      SPRING_FLYWAY_ENABLED: "true"
+      SPRING_FLYWAY_BASELINE_ON_MIGRATE: "true"
+
       # Mail Settings
       SPRING_MAIL_HOST: ${MAIL_HOST:-smtp.gmail.com}
       SPRING_MAIL_PORT: ${MAIL_PORT:-587}
