@@ -42,7 +42,7 @@ services:
 
       # Feature Toggles (Set to false for easier initial setup)
       RECAPTCHA_ENABLED: "false"
-      EMAIL_VERIFICATION_ENABLED: "false"
+      EMAIL_VERIFICATION_ENABLED: ${EMAIL_VERIFICATION_ENABLED:-false}
 
       # Mandatory Keys (Dummy values allowed if features disabled)
       RECAPTCHA_SECRET_KEY: ${RECAPTCHA_SECRET_KEY:-dummy_key}
