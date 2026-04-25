@@ -13,7 +13,7 @@ INSERT INTO users (
 SELECT 
     'admin@example.com', 
     'System Admin', 
-    '$2a$10$8.UnVuG9HHgffUDAlk8qn.R.p4Z1r1qP9R2X8Z2/M48/28/M48/28', 
+    '$2a$10$EblZqNptyYvcLm/VwDC9uu6HNH9BKAD8/5OdS5nS6.82T9L8A.E6.', 
     'ADMIN', 
     'LOCAL', 
     true, 
