@@ -22,8 +22,7 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
     long countByStoreIdAndStatus(Long storeId, OrderStatus status);
 
     @Query("SELECT COUNT(o) FROM Order o WHERE o.store.id = :storeId " +
-           "AND (:from IS NULL OR o.createdAt >= :from) " +
-           "AND (:to IS NULL OR o.createdAt <= :to)")
+           "AND o.createdAt >= :from AND o.createdAt <= :to")
     long countByStoreIdAndDateRange(@Param("storeId") Long storeId, 
                                      @Param("from") LocalDateTime from, 
                                      @Param("to") LocalDateTime to);
@@ -40,19 +39,22 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
     // Revenue grouped by day for a store within a date range
     @Query("SELECT CAST(o.createdAt AS date), SUM(o.grandTotal) " +
            "FROM Order o WHERE o.store.id = :storeId " +
-           "AND (:from IS NULL OR o.createdAt >= :from) " +
-           "AND (:to IS NULL OR o.createdAt <= :to) " +
+           "AND o.createdAt >= :from AND o.createdAt <= :to " +
            "AND o.status NOT IN ('CANCELLED', 'RETURNED') " +
-           "GROUP BY CAST(o.createdAt AS date) " +
-           "ORDER BY CAST(o.createdAt AS date) ASC")
+           "GROUP BY CAST(o.createdAt AS date) ORDER BY 1 ASC")
     List<Object[]> revenueByDayForStore(@Param("storeId") Long storeId,
                                          @Param("from") LocalDateTime from,
                                          @Param("to") LocalDateTime to);
+    
+    @Query("SELECT CAST(COALESCE(o.createdAt, '1970-01-01') AS date), SUM(o.grandTotal) " +
+           "FROM Order o WHERE o.store.id = :storeId " +
+           "AND o.status NOT IN ('CANCELLED', 'RETURNED') " +
+           "GROUP BY 1 ORDER BY 1 ASC")
+    List<Object[]> revenueByDayForStoreLifetime(@Param("storeId") Long storeId);
 
     // Order status distribution for a store with date range
     @Query("SELECT o.status, COUNT(o) FROM Order o WHERE o.store.id = :storeId " +
-           "AND (:from IS NULL OR o.createdAt >= :from) " +
-           "AND (:to IS NULL OR o.createdAt <= :to) " +
+           "AND o.createdAt >= :from AND o.createdAt <= :to " +
            "GROUP BY o.status")
     List<Object[]> orderStatusDistributionByStoreAndDateRange(@Param("storeId") Long storeId,
                                                                @Param("from") LocalDateTime from,
@@ -62,8 +64,7 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
     List<Object[]> orderStatusDistributionByStore(@Param("storeId") Long storeId);
 
     @Query("SELECT SUM(o.grandTotal) FROM Order o WHERE o.store.id = :storeId " +
-           "AND (:from IS NULL OR o.createdAt >= :from) " +
-           "AND (:to IS NULL OR o.createdAt <= :to) " +
+           "AND o.createdAt >= :from AND o.createdAt <= :to " +
            "AND o.status NOT IN ('CANCELLED', 'RETURNED')")
     Double sumRevenueByStoreAndDateRange(@Param("storeId") Long storeId,
                                          @Param("from") LocalDateTime from,

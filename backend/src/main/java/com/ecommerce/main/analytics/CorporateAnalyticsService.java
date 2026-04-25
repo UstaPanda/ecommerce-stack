@@ -40,30 +40,57 @@ public class CorporateAnalyticsService {
         Store store = storeRepository.findById(storeId)
                 .orElseThrow(() -> new IllegalArgumentException("Store not found: " + storeId));
 
-        long totalOrders     = orderRepository.countByStoreIdAndDateRange(storeId, from, to);
-        long pendingOrders   = orderRepository.orderStatusDistributionByStoreAndDateRange(storeId, from, to).stream()
+        long totalOrders;
+        long pendingOrders;
+        long cancelledOrders;
+        double totalRevenue;
+        List<Object[]> rawRevenueByDay;
+        List<Object[]> rawStatusDist;
+
+        if (from == null) {
+            // LIFETIME MODE: Show everything including undated orders
+            totalOrders = orderRepository.countByStoreId(storeId);
+            
+            rawStatusDist = orderRepository.orderStatusDistributionByStore(storeId);
+            pendingOrders = rawStatusDist.stream()
                 .filter(r -> r[0].toString().equals("PENDING")).map(r -> ((Number) r[1]).longValue()).findFirst().orElse(0L);
-        long cancelledOrders = orderRepository.orderStatusDistributionByStoreAndDateRange(storeId, from, to).stream()
+            cancelledOrders = rawStatusDist.stream()
                 .filter(r -> r[0].toString().equals("CANCELLED")).map(r -> ((Number) r[1]).longValue()).findFirst().orElse(0L);
-        
-        Double rev           = orderRepository.sumRevenueByStoreAndDateRange(storeId, from, to);
-        double totalRevenue  = rev != null ? rev : 0.0;
-        
+            
+            Double rev = orderRepository.sumRevenueByStore(storeId);
+            totalRevenue = rev != null ? rev : 0.0;
+            
+            rawRevenueByDay = orderRepository.revenueByDayForStoreLifetime(storeId);
+        } else {
+            // FILTERED MODE: Strict date range
+            LocalDateTime effectiveTo = to != null ? to : LocalDateTime.now();
+            totalOrders = orderRepository.countByStoreIdAndDateRange(storeId, from, effectiveTo);
+            
+            rawStatusDist = orderRepository.orderStatusDistributionByStoreAndDateRange(storeId, from, effectiveTo);
+            pendingOrders = rawStatusDist.stream()
+                .filter(r -> r[0].toString().equals("PENDING")).map(r -> ((Number) r[1]).longValue()).findFirst().orElse(0L);
+            cancelledOrders = rawStatusDist.stream()
+                .filter(r -> r[0].toString().equals("CANCELLED")).map(r -> ((Number) r[1]).longValue()).findFirst().orElse(0L);
+            
+            Double rev = orderRepository.sumRevenueByStoreAndDateRange(storeId, from, effectiveTo);
+            totalRevenue = rev != null ? rev : 0.0;
+            
+            rawRevenueByDay = orderRepository.revenueByDayForStore(storeId, from, effectiveTo);
+        }
+
         long totalProducts   = productRepository.countByStoreId(storeId);
         long lowStock        = productRepository.findByStoreIdAndStockQuantityLessThan(storeId, 10).size();
         Double avgRating     = reviewRepository.avgRatingByStore(storeId);
 
-        // Revenue by day
-        List<CorporateAnalyticsResponse.RevenueByDay> revenueByDay =
-                orderRepository.revenueByDayForStore(storeId, from, to).stream()
-                        .map(row -> {
-                            String dateStr = (row[0] != null) ? row[0].toString() : "Undated";
-                            double amount = (row[1] != null) ? ((Number) row[1]).doubleValue() : 0.0;
-                            return new CorporateAnalyticsResponse.RevenueByDay(dateStr, amount);
-                        })
-                        .toList();
+        // Map Revenue
+        List<CorporateAnalyticsResponse.RevenueByDay> revenueByDay = rawRevenueByDay.stream()
+                .map(row -> new CorporateAnalyticsResponse.RevenueByDay(
+                        row[0] != null ? row[0].toString() : "Undated",
+                        ((Number) row[1]).doubleValue()
+                ))
+                .toList();
 
-        // Top 10 products
+        // Top 10 products (All-time selling)
         List<CorporateAnalyticsResponse.TopProduct> topProducts =
                 productRepository.topSellingByStore(storeId, PageRequest.of(0, 10)).stream()
                         .map(row -> new CorporateAnalyticsResponse.TopProduct(
@@ -74,14 +101,13 @@ public class CorporateAnalyticsService {
                         ))
                         .toList();
 
-        // Order status distribution
-        List<CorporateAnalyticsResponse.OrderStatusCount> statusDist =
-                orderRepository.orderStatusDistributionByStoreAndDateRange(storeId, from, to).stream()
-                        .map(row -> new CorporateAnalyticsResponse.OrderStatusCount(
-                                row[0].toString(),
-                                ((Number) row[1]).longValue()
-                        ))
-                        .toList();
+        // Map Status Distribution
+        List<CorporateAnalyticsResponse.OrderStatusCount> statusDist = rawStatusDist.stream()
+                .map(row -> new CorporateAnalyticsResponse.OrderStatusCount(
+                        row[0].toString(),
+                        ((Number) row[1]).longValue()
+                ))
+                .toList();
 
         // Customer segmentation by membership
         List<CorporateAnalyticsResponse.MembershipCount> segmentation =
