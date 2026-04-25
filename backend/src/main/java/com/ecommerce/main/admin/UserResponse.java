@@ -16,6 +16,17 @@ public record UserResponse(
         LocalDateTime createdAt
 ) {
     public static UserResponse from(User u) {
+        if (u == null) return null;
+        
+        String roleName = "INDIVIDUAL";
+        try {
+            if (u.getRoleType() != null) {
+                roleName = u.getRoleType().name();
+            }
+        } catch (Exception e) {
+            // Fallback for corrupted enum values
+        }
+
         boolean suspended = u.getLockedUntil() != null
                 && u.getLockedUntil().isAfter(LocalDateTime.now());
         String status = suspended ? "SUSPENDED" : "ACTIVE";
@@ -23,13 +34,13 @@ public record UserResponse(
         return new UserResponse(
                 u.getId(),
                 u.getName() != null ? u.getName() : "İsimsiz Kullanıcı",
-                u.getEmail(),
-                u.getRoleType().name(),
+                u.getEmail() != null ? u.getEmail() : "bilinmeyen@email.com",
+                roleName,
                 status,
                 "UNKNOWN",
                 u.isVerified(),
                 u.isTwoFactorEnabled(),
-                u.getCreatedAt()
+                u.getCreatedAt() != null ? u.getCreatedAt() : LocalDateTime.now()
         );
     }
 }
