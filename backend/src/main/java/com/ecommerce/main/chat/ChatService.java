@@ -37,6 +37,14 @@ public class ChatService {
     @Transactional
     public ChatAskResponse ask(String email, ChatAskRequest request) {
         User user = findUser(email);
+        
+        // Extract token from security context to forward to Python
+        String token = null;
+        org.springframework.security.core.Authentication auth = 
+            org.springframework.security.core.context.SecurityContextHolder.getContext().getAuthentication();
+        if (auth != null && auth.getCredentials() instanceof String) {
+            token = (String) auth.getCredentials();
+        }
 
         // Get or create session
         ChatSession session = resolveSession(user, request.getSessionId());
@@ -53,7 +61,7 @@ public class ChatService {
         Map<String, Object> aiPayload = buildAiPayload(user, session, request.getQuestion());
 
         // Call Python/LangGraph service
-        AiServiceResponse aiResponse = callAiService(aiPayload);
+        AiServiceResponse aiResponse = callAiService(aiPayload, token);
 
         // If AI generated SQL, execute it and attach results
         String finalAnswer = aiResponse.final_answer();
@@ -70,7 +78,7 @@ public class ChatService {
                 // We keep the original SQL and VizData if provided
                 aiPayload.put("query_result", rows);
                 aiPayload.put("sql_query", sqlQuery);
-                AiServiceResponse analysisResponse = callAiService(aiPayload);
+                AiServiceResponse analysisResponse = callAiService(aiPayload, token);
                 finalAnswer = analysisResponse.final_answer();
                 
                 // If the second call provided better visualization data, use it
@@ -169,13 +177,18 @@ public class ChatService {
         ));
     }
 
-    private AiServiceResponse callAiService(Map<String, Object> payload) {
+    private AiServiceResponse callAiService(Map<String, Object> payload, String token) {
         try {
             RestClient client = RestClient.create();
-            return client.post()
-                    .uri(chatbotServiceUrl + "/ask")
-                    .contentType(MediaType.APPLICATION_JSON)
-                    .body(payload)
+            var spec = client.post()
+                    .uri(chatbotServiceUrl + "/api/chat/ask")
+                    .contentType(MediaType.APPLICATION_JSON);
+            
+            if (token != null) {
+                spec.header("Authorization", "Bearer " + token);
+            }
+            
+            return spec.body(payload)
                     .retrieve()
                     .body(AiServiceResponse.class);
         } catch (Exception e) {
