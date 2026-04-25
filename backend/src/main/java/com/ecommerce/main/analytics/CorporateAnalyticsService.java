@@ -80,7 +80,14 @@ public class CorporateAnalyticsService {
 
         long totalProducts   = productRepository.countByStoreId(storeId);
         long lowStock        = productRepository.findByStoreIdAndStockQuantityLessThan(storeId, 10).size();
-        Double avgRating     = reviewRepository.avgRatingByStore(storeId);
+        
+        Double avgRating;
+        if (from == null) {
+            avgRating = reviewRepository.avgRatingByStore(storeId);
+        } else {
+            LocalDateTime effectiveTo = to != null ? to : LocalDateTime.now();
+            avgRating = reviewRepository.avgRatingByStoreAndDateRange(storeId, from, effectiveTo);
+        }
 
         // Map Revenue
         List<CorporateAnalyticsResponse.RevenueByDay> revenueByDay = rawRevenueByDay.stream()

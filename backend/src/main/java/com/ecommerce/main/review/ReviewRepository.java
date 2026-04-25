@@ -138,6 +138,12 @@ public interface ReviewRepository extends JpaRepository<Review, Long> {
     @Query("SELECT AVG(r.starRating) FROM Review r WHERE r.product.store.id = :storeId")
     Double avgRatingByStore(@Param("storeId") Long storeId);
 
+    @Query("SELECT AVG(r.starRating) FROM Review r WHERE r.product.store.id = :storeId " +
+           "AND r.createdAt >= :from AND r.createdAt <= :to")
+    Double avgRatingByStoreAndDateRange(@Param("storeId") Long storeId, 
+                                         @Param("from") java.time.LocalDateTime from, 
+                                         @Param("to") java.time.LocalDateTime to);
+
     @Query("SELECT COUNT(r) FROM Review r WHERE r.product.store.id = :storeId")
     long countReviewsByStore(@Param("storeId") Long storeId);
 }
