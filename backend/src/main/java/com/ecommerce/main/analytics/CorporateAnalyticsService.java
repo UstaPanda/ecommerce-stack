@@ -98,8 +98,16 @@ public class CorporateAnalyticsService {
                 .toList();
 
         // Top 10 products (All-time selling)
-        List<CorporateAnalyticsResponse.TopProduct> topProducts =
-                productRepository.topSellingByStore(storeId, PageRequest.of(0, 10)).stream()
+        // Top 10 products
+        List<Object[]> rawTopProducts;
+        if (from == null) {
+            rawTopProducts = productRepository.topSellingByStore(storeId, PageRequest.of(0, 10));
+        } else {
+            LocalDateTime effectiveTo = to != null ? to : LocalDateTime.now();
+            rawTopProducts = productRepository.topSellingByStoreAndDateRange(storeId, from, effectiveTo, PageRequest.of(0, 10));
+        }
+
+        List<CorporateAnalyticsResponse.TopProduct> topProducts = rawTopProducts.stream()
                         .map(row -> new CorporateAnalyticsResponse.TopProduct(
                                 ((Number) row[0]).longValue(),
                                 (String) row[1],
@@ -107,7 +115,6 @@ public class CorporateAnalyticsService {
                                 ((Number) row[3]).doubleValue()
                         ))
                         .toList();
-
         // Map Status Distribution
         List<CorporateAnalyticsResponse.OrderStatusCount> statusDist = rawStatusDist.stream()
                 .map(row -> new CorporateAnalyticsResponse.OrderStatusCount(
