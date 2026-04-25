@@ -48,7 +48,7 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
     // Individual: total order count + total spend
     @Query("SELECT COUNT(o), COALESCE(SUM(o.grandTotal), 0) FROM Order o " +
            "WHERE o.user.email = :email AND o.status != 'CANCELLED'")
-    Object[] spendSummaryByUser(@Param("email") String email);
+    List<Object[]> spendSummaryByUser(@Param("email") String email);
 
     // Individual: order status distribution
     @Query("SELECT o.status, COUNT(o) FROM Order o WHERE o.user.email = :email GROUP BY o.status")
