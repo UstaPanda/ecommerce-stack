@@ -1,4 +1,4 @@
-# 🛡️ Indigo Vault: AI Analytics Architecture
+# 🛡️ ZorluKurt Trading: AI Analytics Architecture
 
 This document describes the multi-agent orchestration logic used to convert natural language into secure, role-filtered e-commerce insights.
 

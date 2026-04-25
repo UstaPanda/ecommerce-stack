@@ -33,10 +33,10 @@ public class PlatformSettings {
     private String platformCurrency = "USD";
 
     @Builder.Default
-    private String supportEmail = "support@indigovault.com";
+    private String supportEmail = "support@zorlukurt.com";
 
     @Builder.Default
-    private String platformName = "Indigo Vault";
+    private String platformName = "ZorluKurt Trading";
 
     @UpdateTimestamp
     private LocalDateTime updatedAt;

@@ -28,7 +28,7 @@ from db_utils import get_user_by_email
 import uvicorn
 
 app = FastAPI(
-    title="Indigo Vault: AI Analytics API",
+    title="ZorluKurt Trading: AI Analytics API",
     description="Secure AI-powered analytics for e-commerce data",
     version="1.0.0"
 )

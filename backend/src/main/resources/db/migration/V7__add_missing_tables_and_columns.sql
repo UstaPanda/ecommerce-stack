@@ -31,8 +31,8 @@ CREATE TABLE IF NOT EXISTS platform_settings (
     require_email_verification BOOLEAN NOT NULL DEFAULT TRUE,
     max_orders_per_user       INT     NOT NULL DEFAULT 50,
     platform_currency         VARCHAR(10)  NOT NULL DEFAULT 'USD',
-    support_email             VARCHAR(255) NOT NULL DEFAULT 'support@indigovault.com',
-    platform_name             VARCHAR(255) NOT NULL DEFAULT 'Indigo Vault',
+    support_email             VARCHAR(255) NOT NULL DEFAULT 'support@zorlukurt.com',
+    platform_name             VARCHAR(255) NOT NULL DEFAULT 'ZorluKurt Trading',
     updated_at                TIMESTAMP
 );
 
@@ -40,5 +40,5 @@ CREATE TABLE IF NOT EXISTS platform_settings (
 INSERT INTO platform_settings (id, maintenance_mode, allow_registrations,
     require_email_verification, max_orders_per_user,
     platform_currency, support_email, platform_name)
-VALUES (1, FALSE, TRUE, TRUE, 50, 'USD', 'support@indigovault.com', 'Indigo Vault')
+VALUES (1, FALSE, TRUE, TRUE, 50, 'USD', 'support@zorlukurt.com', 'ZorluKurt Trading')
 ON CONFLICT (id) DO NOTHING;

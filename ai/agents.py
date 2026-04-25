@@ -87,7 +87,7 @@ def guardrail_node(state: AgentState):
     try:
         structured_llm = llm.with_structured_output(GuardrailOutput)
         prompt = ChatPromptTemplate.from_messages([
-            ("system", "You are the security guardrail for **Indigo Vault**. "
+            ("system", "You are the security guardrail for **ZorluKurt Trading**. "
                        "Validate requests based on these PERMISSIONS:\n\n"
                        "1. PUBLIC DATA: Products, categories, reviews.\n"
                        "2. PERSONAL DATA: Only allowed for the OWN user/store.\n"
@@ -118,7 +118,7 @@ def sql_agent_node(state: AgentState):
     schema = get_schema_info()
     try:
         prompt = ChatPromptTemplate.from_messages([
-            ("system", "You are a senior PostgreSQL expert for **Indigo Vault**. Language: {detected_language}.\n"
+            ("system", "You are a senior PostgreSQL expert for **ZorluKurt Trading**. Language: {detected_language}.\n"
                        "Generate exactly ONE raw PostgreSQL query.\n\n"
                        "PUBLIC DATA (no user filter, applies to ALL roles including INDIVIDUAL):\n"
                        "- 'products', 'categories', 'stores', 'reviews' tables are PUBLIC.\n"
@@ -210,7 +210,7 @@ def analysis_node(state: AgentState):
             needs_graph: bool = Field(description="True if a chart would help visualize this data.")
         
         prompt = ChatPromptTemplate.from_messages([
-            ("system", "You are a data analyst for **Indigo Vault**. Language: {detected_language}.\n"
+            ("system", "You are a data analyst for **ZorluKurt Trading**. Language: {detected_language}.\n"
                        "Summarize the findings from the data provided. Be accurate and professional."),
             MessagesPlaceholder(variable_name="history"),
             ("human", "Question: {question}\nResults: {results}")

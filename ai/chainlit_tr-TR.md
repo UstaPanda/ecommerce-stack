@@ -1,6 +1,6 @@
-# Indigo Vault Analiz Asistanına Hoş Geldiniz! 📈🚀
+# ZorluKurt Trading Analiz Asistanına Hoş Geldiniz! 📈🚀
 
-Merhaba! **Indigo Vault** yapay zeka destekli analiz platformuna hoş geldiniz. Ben sizin e-ticaret verilerinizi analiz etmenize, karmaşık sorguları yanıtlamanıza ve anında görselleştirmeler oluşturmanıza yardımcı olan asistanınızım.
+Merhaba! **ZorluKurt Trading** yapay zeka destekli analiz platformuna hoş geldiniz. Ben sizin e-ticaret verilerinizi analiz etmenize, karmaşık sorguları yanıtlamanıza ve anında görselleştirmeler oluşturmanıza yardımcı olan asistanınızım.
 
 ## Neler Yapabilirim? 🔗
 

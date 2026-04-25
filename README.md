@@ -1,4 +1,4 @@
-# Indigo Vault: Unified E-Commerce Platform
+# ZorluKurt Trading: Unified E-Commerce Platform
 
 This folder contains the merged e-commerce project with Backend, Frontend, AI Analytics, and Database components.
 

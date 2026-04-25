@@ -33,7 +33,7 @@ async def on_chat_start():
     cl.user_session.set("user_id", int(settings["user_id"]))
     
     welcome_msg = (
-        "**Indigo Vault** Yapay Zeka Analiz Asistanına Hoş Geldiniz! 📈\n\n"
+        "**ZorluKurt Trading** Yapay Zeka Analiz Asistanına Hoş Geldiniz! 📈\n\n"
         "E-ticaret verilerinizi analiz edebilir ve anında grafikler oluşturabilirim.\n"
         "**Not:** Rolünüzü ve Kullanıcı ID'nizi sol taraftaki ayarlar panelinden değiştirebilirsiniz.\n\n"
         "Şunları sormayı deneyin:\n"

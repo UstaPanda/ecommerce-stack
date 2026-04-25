@@ -10,7 +10,7 @@ logger = logging.getLogger("Graph-Orchestrator")
 
 def create_graph():
     """
-    Creates a production-ready LangGraph for the Indigo Vault AI Analytics.
+    Creates a production-ready LangGraph for the ZorluKurt Trading AI Analytics.
     Flow: Guardrail -> [SQL Gen -> Execute (Loop if Error) -> Analyze -> Visualize]
     """
     workflow = StateGraph(AgentState)
@@ -97,7 +97,7 @@ def create_graph():
 
     # Compile the graph
     app = workflow.compile()
-    logger.info("Indigo Vault Agent Graph compiled successfully.")
+    logger.info("ZorluKurt Trading Agent Graph compiled successfully.")
     return app
 
 if __name__ == "__main__":
