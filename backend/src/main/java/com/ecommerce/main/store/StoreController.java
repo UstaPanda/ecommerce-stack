@@ -1,5 +1,6 @@
 package com.ecommerce.main.store;
 
+import com.ecommerce.main.admin.AdminStoreDto;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -42,8 +43,12 @@ public class StoreController {
 
     @GetMapping("/my")
     @PreAuthorize("hasAuthority('ROLE_CORPORATE')")
-    public ResponseEntity<List<Store>> getMyStores(Authentication auth) {
-        return ResponseEntity.ok(storeService.getMyStores(auth.getName()));
+    public ResponseEntity<List<AdminStoreDto>> getMyStores(Authentication auth) {
+        List<Store> stores = storeService.getMyStores(auth.getName());
+        List<AdminStoreDto> dtos = stores.stream()
+                .map(AdminStoreDto::from)
+                .toList();
+        return ResponseEntity.ok(dtos);
     }
 
     @GetMapping("/{id}")

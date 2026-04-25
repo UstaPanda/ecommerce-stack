@@ -44,8 +44,12 @@ public class SecurityConfig {
             .cors(cors -> cors.configurationSource(corsConfigurationSource()))
             .csrf(AbstractHttpConfigurer::disable)
             .sessionManagement(session -> session
-                .sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED)
-                .invalidSessionUrl("/api/auth/login")
+                .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+            )
+            .logout(logout -> logout
+                .logoutUrl("/api/auth/logout_internal") // Standard logout endpoint (frontend handles own logout)
+                .deleteCookies("JSESSIONID")
+                .invalidateHttpSession(true)
             )
             .authorizeHttpRequests(auth -> auth
                 .requestMatchers("/api/auth/**", "/api/exchange-rates",
