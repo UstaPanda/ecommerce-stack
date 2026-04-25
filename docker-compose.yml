@@ -33,6 +33,7 @@ services:
       SPRING_DATASOURCE_USERNAME: ${DB_USER:-postgres}
       SPRING_DATASOURCE_PASSWORD: ${DB_PASSWORD:-password}
       JWT_SECRET: ${JWT_SECRET:-yahwvg2vqvz33035x26+vmQ9PzfRwdE/EneUx0SHsT4=}
+      JWT_EXPIRATION: ${JWT_EXPIRATION:-900000}
       CHATBOT_SERVICE_URL: http://ai:8001
       APP_BASE_URL: http://localhost
 
