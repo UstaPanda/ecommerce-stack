@@ -60,6 +60,7 @@ ALGORITHM = "HS256"
 
 class ChatRequest(BaseModel):
     question: str = Field(..., example="What were the total sales last month?")
+    history: Optional[List[dict]] = Field(default_factory=list)
 
 class ChatResponse(BaseModel):
     final_answer: Optional[str]
@@ -129,7 +130,7 @@ async def ask_question(request: ChatRequest, user: dict = Depends(get_current_us
     try:
         initial_state = {
             "question": request.question,
-            "history": [], 
+            "history": request.history or [], 
             "user_role": user["user_role"],
             "user_id": user["user_id"],
             "is_in_scope": True,
