@@ -84,6 +84,8 @@ services:
   frontend:
     build: ./frontend
     # No ports exposed to public
+    environment:
+      - ANGULAR_ALLOWED_HOSTS=localhost,backend,ai,frontend,gateway,127.0.0.1,192.168.189.139
     depends_on:
       - backend
       - ai
