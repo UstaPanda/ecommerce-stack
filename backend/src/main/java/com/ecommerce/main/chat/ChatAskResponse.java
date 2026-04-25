@@ -5,5 +5,7 @@ public record ChatAskResponse(
         Long messageId,
         String answer,
         String sqlQuery,
-        String visualizationCode
+        String visualizationCode,
+        Object visualizationData,
+        boolean isOutOfScope
 ) {}

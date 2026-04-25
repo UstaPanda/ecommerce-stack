@@ -33,9 +33,24 @@ public class ChatMessage {
     @Column(name = "sql_query", columnDefinition = "TEXT")
     private String sqlQuery;
 
-    // Plotly JSON visualization code (if any)
-    @Column(name = "visualization_code", columnDefinition = "TEXT")
-    private String visualizationCode;
+    // Plotly JSON visualization data
+    @Column(name = "visualization_data", columnDefinition = "TEXT")
+    @com.fasterxml.jackson.annotation.JsonIgnore
+    private String visualizationData;
+
+    @com.fasterxml.jackson.annotation.JsonProperty("visualizationData")
+    public Object getParsedVisualizationData() {
+        if (visualizationData == null || visualizationData.isBlank()) return null;
+        try {
+            return new com.fasterxml.jackson.databind.ObjectMapper().readValue(visualizationData, Object.class);
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
+    @Builder.Default
+    @Column(name = "is_out_of_scope", nullable = false)
+    private boolean isOutOfScope = false;
 
     @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt;

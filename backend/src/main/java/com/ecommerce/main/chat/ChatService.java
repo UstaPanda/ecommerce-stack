@@ -1,5 +1,6 @@
 package com.ecommerce.main.chat;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ecommerce.main.store.StoreRepository;
 import com.ecommerce.main.user.Role;
 import com.ecommerce.main.user.User;
@@ -24,6 +25,7 @@ public class ChatService {
     private final UserRepository userRepository;
     private final StoreRepository storeRepository;
     private final QueryExecutionService queryExecutionService;
+    private final ObjectMapper objectMapper;
 
     @Value("${chatbot.service.url:http://localhost:8000}")
     private String chatbotServiceUrl;
@@ -54,29 +56,49 @@ public class ChatService {
         AiServiceResponse aiResponse = callAiService(aiPayload);
 
         // If AI generated SQL, execute it and attach results
-        String finalAnswer = aiResponse.finalAnswer();
-        if (aiResponse.sqlQuery() != null && !aiResponse.sqlQuery().isBlank()) {
+        String finalAnswer = aiResponse.final_answer();
+        String sqlQuery = aiResponse.sql_query();
+        Object vizData = aiResponse.visualization_data();
+
+        if (sqlQuery != null && !sqlQuery.isBlank()) {
             try {
                 Long scopeId = resolveScopeId(user);
                 List<Map<String, Object>> rows = queryExecutionService.execute(
-                        aiResponse.sqlQuery(), user.getRoleType(), scopeId);
+                        sqlQuery, user.getRoleType(), scopeId);
+                
                 // Re-call AI with query results for natural language explanation
+                // We keep the original SQL and VizData if provided
                 aiPayload.put("query_result", rows);
-                aiPayload.put("sql_query", aiResponse.sqlQuery());
+                aiPayload.put("sql_query", sqlQuery);
                 AiServiceResponse analysisResponse = callAiService(aiPayload);
-                finalAnswer = analysisResponse.finalAnswer();
+                finalAnswer = analysisResponse.final_answer();
+                
+                // If the second call provided better visualization data, use it
+                if (analysisResponse.visualization_data() != null) {
+                    vizData = analysisResponse.visualization_data();
+                }
             } catch (Exception e) {
-                finalAnswer = "Query execution failed: " + e.getMessage();
+                finalAnswer = (finalAnswer != null ? finalAnswer + "\n\n" : "") + "Query execution failed: " + e.getMessage();
             }
         }
 
         // Persist assistant message
+        String vizDataJson = null;
+        try {
+            if (vizData != null) {
+                vizDataJson = objectMapper.writeValueAsString(vizData);
+            }
+        } catch (Exception e) {
+            // Ignore serialization errors
+        }
+
         ChatMessage assistantMsg = ChatMessage.builder()
                 .session(session)
                 .role("assistant")
-                .content(finalAnswer)
-                .sqlQuery(aiResponse.sqlQuery())
-                .visualizationCode(aiResponse.visualizationCode())
+                .content(finalAnswer != null ? finalAnswer : "")
+                .sqlQuery(sqlQuery)
+                .visualizationData(vizDataJson)
+                .isOutOfScope(!aiResponse.is_in_scope())
                 .build();
         session.getMessages().add(assistantMsg);
 
@@ -87,8 +109,10 @@ public class ChatService {
                 saved.getId(),
                 savedMsg.getId(),
                 finalAnswer,
-                aiResponse.sqlQuery(),
-                aiResponse.visualizationCode()
+                sqlQuery,
+                aiResponse.visualization_code(),
+                vizData,
+                !aiResponse.is_in_scope()
         );
     }
 
@@ -158,7 +182,7 @@ public class ChatService {
             // AI service unavailable — return graceful fallback
             return new AiServiceResponse(
                     "AI service is currently unavailable. Please try again later.",
-                    null, null);
+                    null, null, null, true);
         }
     }
 
@@ -180,8 +204,10 @@ public class ChatService {
 
     // Internal record for AI service response deserialization
     record AiServiceResponse(
-            String finalAnswer,
-            String sqlQuery,
-            String visualizationCode
+            String final_answer,
+            String sql_query,
+            String visualization_code,
+            Object visualization_data,
+            boolean is_in_scope
     ) {}
 }
