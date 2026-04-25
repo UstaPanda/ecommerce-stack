@@ -35,6 +35,9 @@ public class CartService {
     @Value("${stripe.secret-key}")
     private String stripeSecretKey;
 
+    @Value("${app.base-url:http://localhost}")
+    private String baseUrl;
+
     @PostConstruct
     void initStripe() { Stripe.apiKey = stripeSecretKey; }
 
@@ -179,7 +182,7 @@ public class CartService {
                         .setCurrency("usd")
                         .setPaymentMethod(pmId)
                         .setConfirm(true)
-                        .setReturnUrl("http://localhost:4200/app/orders")
+                        .setReturnUrl(baseUrl + "/orders")
                         .build()
                 );
                 if (!"succeeded".equals(intent.getStatus())) {

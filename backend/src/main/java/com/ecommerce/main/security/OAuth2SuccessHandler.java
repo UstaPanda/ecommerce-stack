@@ -9,6 +9,7 @@ import com.ecommerce.main.user.UserRepository;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
@@ -27,6 +28,9 @@ public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
     private final UserRepository userRepository;
     private final JwtService jwtService;
     private final RefreshTokenRepository refreshTokenRepository;
+
+    @Value("${app.base-url:http://localhost}")
+    private String baseUrl;
 
     @Override
     @Transactional
@@ -58,7 +62,8 @@ public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
         refreshTokenRepository.save(refreshToken);
 
         String redirectUrl = String.format(
-                "http://localhost:4200/auth/oauth2/callback?accessToken=%s&refreshToken=%s&email=%s&name=%s&role=%s",
+                "%s/auth/oauth2/callback?accessToken=%s&refreshToken=%s&email=%s&name=%s&role=%s",
+                baseUrl,
                 accessToken,
                 refreshToken.getToken(),
                 java.net.URLEncoder.encode(user.getEmail(), java.nio.charset.StandardCharsets.UTF_8),
@@ -67,6 +72,7 @@ public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
         );
         response.sendRedirect(redirectUrl);
     }
+
 
     private User handleGoogle(OAuth2User oAuth2User) {
         String email    = oAuth2User.getAttribute("email");
