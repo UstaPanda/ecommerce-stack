@@ -37,6 +37,9 @@ public class CorporateAnalyticsService {
                                                          LocalDateTime from, LocalDateTime to) {
         assertStoreAccess(storeId, requestorEmail);
 
+        LocalDateTime effectiveFrom = from != null ? from : LocalDateTime.of(2000, 1, 1, 0, 0);
+        LocalDateTime effectiveTo = to != null ? to : LocalDateTime.now();
+
         Store store = storeRepository.findById(storeId)
                 .orElseThrow(() -> new IllegalArgumentException("Store not found: " + storeId));
 
@@ -51,7 +54,7 @@ public class CorporateAnalyticsService {
 
         // Revenue by day
         List<CorporateAnalyticsResponse.RevenueByDay> revenueByDay =
-                orderRepository.revenueByDayForStore(storeId, from, to).stream()
+                orderRepository.revenueByDayForStore(storeId, effectiveFrom, effectiveTo).stream()
                         .map(row -> new CorporateAnalyticsResponse.RevenueByDay(
                                 row[0].toString(),
                                 ((Number) row[1]).doubleValue()
