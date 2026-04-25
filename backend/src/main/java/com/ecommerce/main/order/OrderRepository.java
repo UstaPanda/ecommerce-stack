@@ -38,13 +38,13 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
     Double sumRevenueByStore(@Param("storeId") Long storeId);
 
     // Revenue grouped by day for a store within a date range
-    // Handles NULL created_at by coalescing to a default far-past date when :from is null
-    @Query("SELECT CAST(COALESCE(o.createdAt, :from, '1970-01-01') AS date), SUM(o.grandTotal) " +
+    @Query("SELECT CAST(o.createdAt AS date), SUM(o.grandTotal) " +
            "FROM Order o WHERE o.store.id = :storeId " +
            "AND (:from IS NULL OR o.createdAt >= :from) " +
            "AND (:to IS NULL OR o.createdAt <= :to) " +
            "AND o.status NOT IN ('CANCELLED', 'RETURNED') " +
-           "GROUP BY 1 ORDER BY 1")
+           "GROUP BY CAST(o.createdAt AS date) " +
+           "ORDER BY CAST(o.createdAt AS date) ASC")
     List<Object[]> revenueByDayForStore(@Param("storeId") Long storeId,
                                          @Param("from") LocalDateTime from,
                                          @Param("to") LocalDateTime to);

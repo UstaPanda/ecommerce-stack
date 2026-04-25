@@ -56,10 +56,11 @@ public class CorporateAnalyticsService {
         // Revenue by day
         List<CorporateAnalyticsResponse.RevenueByDay> revenueByDay =
                 orderRepository.revenueByDayForStore(storeId, from, to).stream()
-                        .map(row -> new CorporateAnalyticsResponse.RevenueByDay(
-                                row[0].toString(),
-                                ((Number) row[1]).doubleValue()
-                        ))
+                        .map(row -> {
+                            String dateStr = (row[0] != null) ? row[0].toString() : "Undated";
+                            double amount = (row[1] != null) ? ((Number) row[1]).doubleValue() : 0.0;
+                            return new CorporateAnalyticsResponse.RevenueByDay(dateStr, amount);
+                        })
                         .toList();
 
         // Top 10 products
