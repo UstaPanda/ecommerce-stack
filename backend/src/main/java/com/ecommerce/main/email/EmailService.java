@@ -1,6 +1,8 @@
 package com.ecommerce.main.email;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.mail.MailException;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Service;
@@ -9,6 +11,7 @@ import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class EmailService {
 
     private final JavaMailSender mailSender;
@@ -20,6 +23,7 @@ public class EmailService {
     private String baseUrl;
 
     public void sendVerificationEmail(String toEmail, String code) {
+        log.info("Sending verification email to: {}", toEmail);
         SimpleMailMessage message = new SimpleMailMessage();
         message.setFrom(fromEmail);
         message.setTo(toEmail);
@@ -31,10 +35,16 @@ public class EmailService {
             "Ecom"
         );
 
-        mailSender.send(message);
+        try {
+            mailSender.send(message);
+            log.info("Successfully sent verification email to: {}", toEmail);
+        } catch (MailException e) {
+            log.error("Failed to send verification email to: {}. Error: {}", toEmail, e.getMessage());
+        }
     }
 
     public void sendRegistrationAttemptEmail(String toEmail) {
+        log.info("Sending registration attempt email to: {}", toEmail);
         SimpleMailMessage message = new SimpleMailMessage();
         message.setFrom(fromEmail);
         message.setTo(toEmail);
@@ -46,10 +56,16 @@ public class EmailService {
             "Sifrenizi degistirmek isterseniz sifre sifirlama sayfasini kullanabilirsiniz.\n\n" +
             "Ecom"
         );
-        mailSender.send(message);
+        try {
+            mailSender.send(message);
+            log.info("Successfully sent registration attempt email to: {}", toEmail);
+        } catch (MailException e) {
+            log.error("Failed to send registration attempt email to: {}. Error: {}", toEmail, e.getMessage());
+        }
     }
 
     public void sendPasswordResetEmail(String toEmail, String code) {
+        log.info("Sending password reset email to: {}", toEmail);
         SimpleMailMessage message = new SimpleMailMessage();
         message.setFrom(fromEmail);
         message.setTo(toEmail);
@@ -61,6 +77,11 @@ public class EmailService {
             "Ecom Team"
         );
 
-        mailSender.send(message);
+        try {
+            mailSender.send(message);
+            log.info("Successfully sent password reset email to: {}", toEmail);
+        } catch (MailException e) {
+            log.error("Failed to send password reset email to: {}. Error: {}", toEmail, e.getMessage());
+        }
     }
 }
