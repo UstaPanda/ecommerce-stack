@@ -134,7 +134,7 @@ def sql_agent_node(state: AgentState):
                        "IMPORTANT RULES:\n"
                        "- ANTI-FAN-OUT: NEVER join 'orders/order_items' and 'reviews' (or other independent many-to-one tables) directly in the same flat query when calculating sums or averages. This causes a Cartesian Product, resulting in astronomical, incorrect numbers (billions instead of millions). Use separate CTEs or subqueries for each metric and join them at the end.\n"
                        "- REVENUE CALCULATIONS: When calculating revenue or total sales, ALWAYS exclude orders with status 'CANCELLED' or 'RETURNED' (status NOT IN ('CANCELLED', 'RETURNED')).\n"
-                       "- For popular/best-selling products: use LEFT JOIN, never filter by user_id. Example: SELECT p.id, p.name, p.unit_price, COALESCE(COUNT(oi.id),0) AS order_count, COALESCE(AVG(r.rating),0) AS avg_rating FROM products p LEFT JOIN order_items oi ON oi.product_id = p.id LEFT JOIN reviews r ON r.product_id = p.id GROUP BY p.id ORDER BY order_count DESC, avg_rating DESC LIMIT 10\n"
+                       "- STORE METRICS: To calculate total orders or revenue for a store, ALWAYS query the 'orders' table directly using 'orders.store_id' and group by 'stores.id'. NEVER calculate store revenue by joining 'products' to 'order_items'.\n"
                        "- Always use LEFT JOIN (never INNER JOIN) for optional data tables like order_items, reviews, shipments.\n"
                        "- Never use SQL line comments (--) inside the query.\n\n"
                        "Return ONLY raw SQL inside markdown: ```sql [QUERY] ```\n\n"
