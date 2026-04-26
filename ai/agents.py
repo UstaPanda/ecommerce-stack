@@ -132,6 +132,7 @@ def sql_agent_node(state: AgentState):
                        "- INDIVIDUAL: Filter by 'user_id = {user_id}' ONLY on personal tables: 'orders', 'customer_profiles', 'carts', 'cart_items' (join carts on carts.user_id).\n"
                        "  * NEVER add user_id filter when querying 'products', 'categories', or 'reviews'.\n\n"
                        "IMPORTANT RULES:\n"
+                       "- ANTI-FAN-OUT: NEVER join 'orders/order_items' and 'reviews' (or other independent many-to-one tables) directly in the same flat query when calculating sums or averages. This causes a Cartesian Product, resulting in astronomical, incorrect numbers (billions instead of millions). Use separate CTEs or subqueries for each metric and join them at the end.\n"
                        "- REVENUE CALCULATIONS: When calculating revenue or total sales, ALWAYS exclude orders with status 'CANCELLED' or 'RETURNED' (status NOT IN ('CANCELLED', 'RETURNED')).\n"
                        "- For popular/best-selling products: use LEFT JOIN, never filter by user_id. Example: SELECT p.id, p.name, p.unit_price, COALESCE(COUNT(oi.id),0) AS order_count, COALESCE(AVG(r.rating),0) AS avg_rating FROM products p LEFT JOIN order_items oi ON oi.product_id = p.id LEFT JOIN reviews r ON r.product_id = p.id GROUP BY p.id ORDER BY order_count DESC, avg_rating DESC LIMIT 10\n"
                        "- Always use LEFT JOIN (never INNER JOIN) for optional data tables like order_items, reviews, shipments.\n"
