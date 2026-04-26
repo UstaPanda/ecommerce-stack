@@ -1,14 +1,23 @@
 #!/bin/bash
 
-# Load .env file properly
+# Parse .env securely without executing it to prevent syntax errors
 if [ -f .env ]; then
-    set -a
-    source .env
-    set +a
+    while IFS='=' read -r key value; do
+        if [[ ! -z "$key" && ! "$key" =~ ^# ]]; then
+            # Remove surrounding quotes and carriage returns
+            value=$(echo "$value" | sed -e 's/^"//' -e 's/"$//' -e "s/^'//" -e "s/'$//" | tr -d '\r')
+            export "$key=$value"
+        fi
+    done < .env
 fi
 
 if [ -z "$DOMAIN_NAME" ] || [ "$DOMAIN_NAME" == "localhost" ]; then
     echo "Error: Please set a valid DOMAIN_NAME in your .env file."
+    exit 1
+fi
+
+if [ -z "$SSL_EMAIL" ]; then
+    echo "Error: Please set SSL_EMAIL in your .env file."
     exit 1
 fi
 
@@ -29,8 +38,9 @@ if [ -d "./certbot/conf/live/$DOMAIN_NAME" ]; then
 fi
 
 # 3. Request the real certificate
+# We must override the entrypoint here because docker-compose.yml defines an infinite renewal loop
 echo "Requesting real certificate from Let's Encrypt..."
-docker-compose run --rm certbot certonly --webroot \
+docker-compose run --rm --entrypoint "certbot" certbot certonly --webroot \
     --webroot-path=/var/www/certbot \
     --email "$SSL_EMAIL" \
     --agree-tos \
