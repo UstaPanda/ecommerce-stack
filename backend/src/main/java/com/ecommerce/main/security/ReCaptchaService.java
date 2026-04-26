@@ -33,13 +33,13 @@ public class ReCaptchaService {
             throw new IllegalArgumentException("reCAPTCHA dogrulamasi basarisiz");
         }
 
+        // Skor kontrolü (Sadece v3 için geçerlidir, v2'de null döner)
         Object scoreObj = response.get("score");
-        if (scoreObj == null) {
-            throw new IllegalArgumentException("reCAPTCHA dogrulamasi basarisiz: skor alinamadi");
-        }
-        double score = ((Number) scoreObj).doubleValue();
-        if (score < MIN_SCORE) {
-            throw new IllegalArgumentException("reCAPTCHA skoru yetersiz (bot aktivitesi tespit edildi)");
+        if (scoreObj != null) {
+            double score = ((Number) scoreObj).doubleValue();
+            if (score < MIN_SCORE) {
+                throw new IllegalArgumentException("reCAPTCHA skoru yetersiz (bot aktivitesi tespit edildi)");
+            }
         }
     }
 }
