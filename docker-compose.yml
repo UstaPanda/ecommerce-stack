@@ -3,10 +3,23 @@ services:
     build: ./nginx
     ports:
       - "80:80"
+      - "443:443"
+    environment:
+      DOMAIN_NAME: ${DOMAIN_NAME:-localhost}
+    volumes:
+      - ./certbot/conf:/etc/letsencrypt
+      - ./certbot/www:/var/www/certbot
     depends_on:
       - frontend
       - backend
       - ai
+
+  certbot:
+    image: certbot/certbot
+    volumes:
+      - ./certbot/conf:/etc/letsencrypt
+      - ./certbot/www:/var/www/certbot
+    entrypoint: "/bin/sh -c 'trap exit TERM; while :; do certbot renew; sleep 12h & wait $${!}; done;'"
 
   db:
     image: postgres:17
@@ -33,7 +46,7 @@ services:
       JWT_SECRET: ${JWT_SECRET:-yahwvg2vqvz33035x26+vmQ9PzfRwdE/EneUx0SHsT4=}
       JWT_EXPIRATION: ${JWT_EXPIRATION:-900000}
       CHATBOT_SERVICE_URL: http://ai:8001
-      APP_BASE_URL: http://localhost
+      APP_BASE_URL: https://${DOMAIN_NAME:-localhost}
 
       # Flyway Fix for pre-existing DB
       SPRING_FLYWAY_ENABLED: "true"
