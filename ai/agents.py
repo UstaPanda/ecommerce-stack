@@ -129,6 +129,7 @@ def sql_agent_node(state: AgentState):
                        "- CORPORATE: \n"
                        "  * Accessing 'stores': Filter by 'owner_id = {user_id}'.\n"
                        "  * Accessing 'orders', 'order_items': MUST JOIN with 'stores' and filter by 'stores.owner_id = {user_id}'.\n"
+                       "  * Accessing 'users' (Customer Info): Only allowed when joining with 'orders' that belong to the user's store to identify their own customers.\n"
                        "  * Accessing 'shipments': Join with 'orders' and 'stores', filter by 'stores.owner_id = {user_id}'.\n"
                        "- INDIVIDUAL: Filter by 'user_id = {user_id}' ONLY on personal tables: 'orders', 'customer_profiles', 'carts', 'cart_items'.\n\n"
                        "ENTITY HANDLING (CRITICAL):\n"
