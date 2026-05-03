@@ -187,7 +187,8 @@ def error_agent_node(state: AgentState):
                        "1. AMBIGUOUS COLUMNS: If the error is 'ambiguous', YOU MUST prefix EVERY column in the query with its table or CTE alias (e.g., 't1.id' instead of 'id').\n"
                        "2. CTE COLUMNS: Verify that every column used in a JOIN or SUBQUERY actually exists in the SELECT list of the CTE it's being pulled from.\n"
                        "3. RBAC: Ensure 'products', 'categories', 'reviews' remain PUBLIC (no owner filter).\n"
-                       "4. SYNTAX: Never use SQL line comments (--).\n\n"
+                       "4. SYNTAX: Never use SQL line comments (--).\n"
+                       "5. JOIN TYPE: Always use LEFT JOIN instead of INNER JOIN for optional tables (like reviews or shipments) to avoid missing data.\n\n"
                        "Failed Query: {sql_query}\n"
                        "Schema:\n{schema}\n"
                        "Return ONLY raw SQL without any markdown or comments."),
