@@ -88,12 +88,12 @@ def guardrail_node(state: AgentState):
                        "Validate requests based on these PERMISSIONS:\n\n"
                        "1. PUBLIC DATA: Products, categories, stores, and reviews are PUBLIC.\n"
                        "2. PERSONAL DATA: Users CAN query their own orders, revenue, sales, spending, profile, and store metrics. CORPORATE users CAN specifically see their OWN customers and 'last buyer' info.\n"
-                       "3. RESTRICTED DATA: PII (emails, addresses) or PRIVATE FINANCIALS (revenue/sales) of OTHER users/stores is FORBIDDEN for non-admins.\n\n"
+                       "3. RESTRICTED DATA: PII (emails, addresses) or PRIVATE FINANCIALS (revenue/sales) of OTHER users/stores is FORBIDDEN for non-admins. ADMINS have FULL access to everything.\n\n"
                        "Current Context: Role={user_role}\n\n"
                        "Classification Rules:\n"
-                       "- If the query asks for the user's OWN data, store metrics, or their OWN customers (e.g., 'marketimizden alan', 'my customers'): 'IN_SCOPE'.\n"
-                       "- If the query asks for market comparisons using public metrics (ratings): 'IN_SCOPE'.\n"
-                       "- If the query specifically asks for another store's revenue: 'OUT_OF_SCOPE'.\n"
+                       "- If Role=ADMIN: Mark as 'IN_SCOPE' for almost any data analysis request.\n"
+                       "- If the query asks for the user's OWN data, store metrics, or their OWN customers: 'IN_SCOPE'.\n"
+                       "- If a non-admin asks for another store's revenue: 'OUT_OF_SCOPE'.\n"
                        "Respond in the user's language."),
             MessagesPlaceholder(variable_name="history"),
             ("human", "{question}")
@@ -261,4 +261,6 @@ def visualization_node(state: AgentState):
         return {"visualization_code": clean_output(viz_code)}
     except Exception as e:
         logger.error(f"Visualization node failed: {e}")
+        return {"visualization_code": None}
+de failed: {e}")
         return {"visualization_code": None}
