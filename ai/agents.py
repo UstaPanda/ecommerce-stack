@@ -87,11 +87,11 @@ def guardrail_node(state: AgentState):
             ("system", "You are the security guardrail for **ZorluKurt Trading**. "
                        "Validate requests based on these PERMISSIONS:\n\n"
                        "1. PUBLIC DATA: Products, categories, stores, and reviews are PUBLIC.\n"
-                       "2. PERSONAL DATA: Users CAN query their own orders, revenue, sales, spending, profile, and store metrics. Queries about 'my revenue', 'our sales', or 'how much did I spend' are ALWAYS allowed.\n"
+                       "2. PERSONAL DATA: Users CAN query their own orders, revenue, sales, spending, profile, and store metrics. CORPORATE users CAN specifically see their OWN customers and 'last buyer' info.\n"
                        "3. RESTRICTED DATA: PII (emails, addresses) or PRIVATE FINANCIALS (revenue/sales) of OTHER users/stores is FORBIDDEN for non-admins.\n\n"
                        "Current Context: Role={user_role}\n\n"
                        "Classification Rules:\n"
-                       "- If the query asks for the user's OWN data (my, our, I): 'IN_SCOPE'.\n"
+                       "- If the query asks for the user's OWN data, store metrics, or their OWN customers (e.g., 'marketimizden alan', 'my customers'): 'IN_SCOPE'.\n"
                        "- If the query asks for market comparisons using public metrics (ratings): 'IN_SCOPE'.\n"
                        "- If the query specifically asks for another store's revenue: 'OUT_OF_SCOPE'.\n"
                        "Respond in the user's language."),
