@@ -122,15 +122,30 @@ def convert_numpy(obj):
         return [convert_numpy(i) for i in obj]
     return obj
 
+from langchain_core.messages import HumanMessage, AIMessage
+
+def convert_history(history: List[dict]) -> List[Any]:
+    """Converts raw history dicts to LangChain message objects."""
+    messages = []
+    for msg in history:
+        content = msg.get("content") or msg.get("text")
+        role = msg.get("role") or msg.get("type")
+        if role in ["user", "human"]:
+            messages.append(HumanMessage(content=content))
+        elif role in ["assistant", "ai"]:
+            messages.append(AIMessage(content=content))
+    return messages
+
 @app.post("/api/chat/ask", response_model=ChatResponse)
 async def ask_question(request: ChatRequest, user: dict = Depends(get_current_user)):
     start_time = time.time()
     logger.info(f"Question from {user['email']} ({user['user_role']}): {request.question}")
     
     try:
+        formatted_history = convert_history(request.history or [])
         initial_state = {
             "question": request.question,
-            "history": request.history or [], 
+            "history": formatted_history, 
             "user_role": user["user_role"],
             "user_id": user["user_id"],
             "is_in_scope": True,
