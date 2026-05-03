@@ -1,6 +1,6 @@
 from typing import TypedDict, Optional, List, Any, Annotated
 import operator
-from langchain_anthropic import ChatAnthropic
+from langchain_openai import ChatOpenAI
 from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
 from langchain_core.output_parsers import StrOutputParser
 from langchain_core.messages import BaseMessage, HumanMessage, AIMessage
@@ -16,22 +16,21 @@ logger = logging.getLogger("AI-Agents")
 
 load_dotenv()
 
-# Initialize direct Anthropic Claude API
-anthropic_api_key = os.getenv("ANTHROPIC_API_KEY")
-if not anthropic_api_key:
-    logger.critical("ANTHROPIC_API_KEY not found in environment.")
+# Initialize OpenAI API
+openai_api_key = os.getenv("OPENAI_API_KEY")
+if not openai_api_key:
+    logger.critical("OPENAI_API_KEY not found in environment.")
 
-# Model IDs for robustness (Order for fallback)
+# Model IDs for robustness
 model_names = [
-    "claude-3-7-sonnet-latest",
-    "claude-3-5-sonnet-latest",
-    "claude-3-5-haiku-latest"
+    "gpt-4o",
+    "gpt-4o-mini"
 ]
 
 def create_llm_chain(temperature=0):
-    """Creates a Claude LLM with fallbacks."""
+    """Creates an OpenAI LLM with fallbacks."""
     llms = [
-        ChatAnthropic(model_name=name, anthropic_api_key=anthropic_api_key, temperature=temperature, max_retries=2) 
+        ChatOpenAI(model=name, api_key=openai_api_key, temperature=temperature, max_retries=2) 
         for name in model_names
     ]
     return llms[0].with_fallbacks(llms[1:])

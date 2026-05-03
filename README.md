@@ -13,7 +13,7 @@ This folder contains the merged e-commerce project with Backend, Frontend, AI An
    ```bash
    cp .env.example .env
    ```
-4. Open `.env` and enter your `GOOGLE_API_KEY`.
+4. Open `.env` and enter your `OPENAI_API_KEY`.
 5. Run the project:
    ```bash
    docker-compose up --build
@@ -37,7 +37,7 @@ The database is automatically initialized using the `db-init/init.sql` file (whi
 
 ## Environment Variables
 You can customize the following in `.env`:
-- `ANTHROPIC_API_KEY`: Your Anthropic Claude API key.
+- `OPENAI_API_KEY`: Your OpenAI API key.
 - `JWT_SECRET`: Secret used for token signing (must match between Backend and AI).
 - `DB_PASSWORD`: PostgreSQL password.
 - `DB_NAME`: Database name.
