@@ -134,6 +134,7 @@ def sql_agent_node(state: AgentState):
                        "- INDIVIDUAL: Filter by 'user_id = {user_id}' ONLY on personal tables: 'orders', 'customer_profiles', 'carts', 'cart_items'.\n\n"
                        "ENTITY HANDLING (CRITICAL):\n"
                        "- 'OUR PRODUCT' / 'MY PRODUCT': If the user refers to 'their product' but doesn't name it, YOU MUST AGGREGATE across ALL products in their store. Use a subquery to find their store_id via owner_id.\n"
+                       "- GLOBAL ANALYSIS (ADMIN ONLY): If Role=ADMIN and the user asks for 'market earnings', 'store comparisons', or 'total revenue', AGGREGATE across ALL stores in the database. Do not limit to a single store.\n"
                        "- 'BIGGEST COMPETITOR': For non-admins, identify the 'biggest store' using PUBLIC metrics like COUNT(products) or COUNT(reviews). Compare your store's AGGREGATE reviews (median/average) against the competitor store's AGGREGATE reviews.\n\n"
                        "COMPETITOR ANALYSIS (NON-ADMINS):\n"
                        "- You are STICKTLY FORBIDDEN from querying 'orders' or 'order_items' for stores that do not belong to the user.\n"
