@@ -227,9 +227,10 @@ def analysis_node(state: AgentState):
             needs_graph: bool = Field(description="True if a chart would help visualize this data.")
         
         prompt = ChatPromptTemplate.from_messages([
-            ("system", "You are a data analyst for **ZorluKurt Trading**. Language: {detected_language}.\n"
+            ("system", "You are a data analyst for **ZorluKurt Trading**. You MUST respond in {detected_language}.\n"
                        "CURRENCY: All prices and revenue values are in **USD ($)**.\n"
-                       "Summarize the findings from the data provided. Be accurate and professional."),
+                       "Summarize the findings from the data provided. Be accurate and professional. "
+                       "If no data is found, explain why in {detected_language}."),
             MessagesPlaceholder(variable_name="history"),
             ("human", "Question: {question}\nResults: {results}")
         ])
@@ -266,4 +267,7 @@ def visualization_node(state: AgentState):
     except Exception as e:
         logger.error(f"Visualization node failed: {e}")
         return {"visualization_code": None}
+        return {"visualization_code": None}
+zation_code": None}
+isualization_code": None}
         return {"visualization_code": None}
