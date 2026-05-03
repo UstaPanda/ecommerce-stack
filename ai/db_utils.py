@@ -125,7 +125,7 @@ def get_schema_info():
     tables = [
         "users", "customer_profiles", "stores", "products",
         "categories", "orders", "order_items", "shipments", "reviews",
-        "carts", "cart_items"
+        "carts", "cart_items", "platform_settings"
     ]
 
     schema_info = "DATABASE SCHEMA AND SAMPLE DATA:\n"

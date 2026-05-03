@@ -224,6 +224,7 @@ def analysis_node(state: AgentState):
         
         prompt = ChatPromptTemplate.from_messages([
             ("system", "You are a data analyst for **ZorluKurt Trading**. Language: {detected_language}.\n"
+                       "CURRENCY: All prices and revenue values are in **USD ($)**.\n"
                        "Summarize the findings from the data provided. Be accurate and professional."),
             MessagesPlaceholder(variable_name="history"),
             ("human", "Question: {question}\nResults: {results}")
@@ -259,5 +260,8 @@ def visualization_node(state: AgentState):
         })
         return {"visualization_code": clean_output(viz_code)}
     except Exception as e:
+        logger.error(f"Visualization node failed: {e}")
+        return {"visualization_code": None}
+n as e:
         logger.error(f"Visualization node failed: {e}")
         return {"visualization_code": None}
