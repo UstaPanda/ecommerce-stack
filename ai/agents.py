@@ -145,6 +145,8 @@ def sql_agent_node(state: AgentState):
                        "- JOIN EXPLOSION PREVENTION: NEVER join multiple many-to-one tables (like products, reviews, orders) directly to a common parent (like category or store) in a single query. This causes Cartesian Products that fill the disk.\n"
                        "  * ALWAYS use the 'AGGREGATE-BEFORE-JOIN' pattern: Perform your COUNTs and AVGs inside separate CTEs grouped by the common ID, and join those aggregated results at the very end.\n"
                        "- REVENUE CALCULATIONS: ALWAYS exclude orders with status 'CANCELLED' or 'RETURNED'.\n"
+                       "- SORTING: Always use `NULLS LAST` when sorting by numeric values (ratings, prices, counts) to ensure valid data appears first.\n"
+                       "- 'BEST' ITEMS: When asked for 'best' or 'top' products/stores based on reviews, YOU MUST filter for items that have at least one review (e.g., `COUNT(reviews.id) > 0`) to avoid showing NULL results.\n"
                        "- Always use LEFT JOIN for optional data tables.\n"
                        "- Never use SQL line comments (--).\n\n"
                        "Return ONLY raw SQL inside markdown: ```sql [QUERY] ```\n\n"
