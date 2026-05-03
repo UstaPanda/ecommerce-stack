@@ -249,14 +249,3 @@ def visualization_node(state: AgentState):
     except Exception as e:
         logger.error(f"Visualization node failed: {e}")
         return {"visualization_code": None}
-
-        ])
-        viz_code = (prompt | llm_creative | StrOutputParser()).invoke({
-            "question": state["question"], 
-            "results": str(state["query_result"]),
-            "detected_language": state.get("detected_language", "English")
-        })
-        return {"visualization_code": clean_output(viz_code)}
-    except Exception as e:
-        logger.error(f"Visualization node failed: {e}")
-        return {"visualization_code": None}
