@@ -158,6 +158,10 @@ def sql_agent_node(state: AgentState):
         sql_query = sql_match.group(1).strip() if sql_match else clean_output(response)
             
         sql_query = re.sub(r'--[^\n]*', '', sql_query).strip()
+        
+        # Log the generated SQL for transparency
+        logger.info(f"Generated SQL: {sql_query}")
+        
         return {"sql_query": sql_query, "iteration_count": 0, "error": None}
     except Exception as e:
         logger.error(f"SQL Agent failed: {e}")
