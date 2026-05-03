@@ -182,11 +182,13 @@ def error_agent_node(state: AgentState):
     schema = get_schema_info()
     try:
         prompt = ChatPromptTemplate.from_messages([
-            ("system", "The SQL failed. Fix it while maintaining RBAC for {user_role} (user_id={user_id}).\n"
-                       "REMINDER: 'products', 'categories', 'reviews' are PUBLIC — never add user_id filter on them.\n"
-                       "Always use LEFT JOIN instead of INNER JOIN for optional tables.\n"
-                       "Never use SQL line comments (--).\n"
-                       "Failed Query: {sql_query}\nError: {error}\n"
+            ("system", "The SQL failed with error: {error}. Fix it while maintaining RBAC for {user_role}.\n\n"
+                       "DEBUGGING CHECKLIST:\n"
+                       "1. AMBIGUOUS COLUMNS: If the error is 'ambiguous', YOU MUST prefix EVERY column in the query with its table or CTE alias (e.g., 't1.id' instead of 'id').\n"
+                       "2. CTE COLUMNS: Verify that every column used in a JOIN or SUBQUERY actually exists in the SELECT list of the CTE it's being pulled from.\n"
+                       "3. RBAC: Ensure 'products', 'categories', 'reviews' remain PUBLIC (no owner filter).\n"
+                       "4. SYNTAX: Never use SQL line comments (--).\n\n"
+                       "Failed Query: {sql_query}\n"
                        "Schema:\n{schema}\n"
                        "Return ONLY raw SQL without any markdown or comments."),
             ("human", "{question}")
@@ -262,4 +264,5 @@ def visualization_node(state: AgentState):
         return {"visualization_code": clean_output(viz_code)}
     except Exception as e:
         logger.error(f"Visualization node failed: {e}")
+        return {"visualization_code": None}
         return {"visualization_code": None}
