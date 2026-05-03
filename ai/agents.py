@@ -93,7 +93,8 @@ def guardrail_node(state: AgentState):
                        "Classification Rules:\n"
                        "- If Role=ADMIN: Mark as 'IN_SCOPE' for almost any data analysis request.\n"
                        "- If the query asks for the user's OWN data, store metrics, or their OWN customers: 'IN_SCOPE'.\n"
-                       "- If a non-admin asks for another store's revenue: 'OUT_OF_SCOPE'.\n"
+                       "- If the query asks for market trends, best-selling products globally, or comparisons between the user and the 'average' market: 'IN_SCOPE'.\n"
+                       "- If a non-admin specifically asks for another user's PII or another store's private revenue: 'OUT_OF_SCOPE'.\n"
                        "Respond in the user's language."),
             MessagesPlaceholder(variable_name="history"),
             ("human", "{question}")
