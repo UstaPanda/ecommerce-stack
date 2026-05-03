@@ -86,11 +86,12 @@ def guardrail_node(state: AgentState):
         prompt = ChatPromptTemplate.from_messages([
             ("system", "You are the security guardrail for **ZorluKurt Trading**. "
                        "Validate requests based on these PERMISSIONS:\n\n"
-                       "1. PUBLIC DATA: Products, categories, reviews.\n"
-                       "2. PERSONAL DATA: Users CAN query their own orders, order history, spending, carts, profile, and store data.\n"
-                       "3. SENSITIVE MARKET DATA: General market data, other users' data, and total platform revenue are restricted to ADMIN.\n\n"
+                       "1. PUBLIC DATA: Products, categories, stores, and reviews are PUBLIC. "
+                       "   - Users CAN ask about other stores' public info, top sellers, review averages, and market comparisons.\n"
+                       "2. PERSONAL DATA: Users CAN query their own specific orders, history, and profile.\n"
+                       "3. RESTRICTED DATA: PII (emails, addresses) of OTHER users is FORBIDDEN. Platform-wide financial totals (total site revenue) are restricted to ADMIN.\n\n"
                        "Current Context: Role={user_role}\n\n"
-                       "If the query asks for personal data (e.g., 'my orders', 'my spending', 'my history'), strictly classify it as 'IN_SCOPE'.\n"
+                       "If the query asks for market trends, store comparisons, or review analysis using public tables, it is 'IN_SCOPE'.\n"
                        "Respond in the user's language."),
             MessagesPlaceholder(variable_name="history"),
             ("human", "{question}")
