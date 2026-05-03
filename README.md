@@ -37,7 +37,7 @@ The database is automatically initialized using the `db-init/init.sql` file (whi
 
 ## Environment Variables
 You can customize the following in `.env`:
-- `GOOGLE_API_KEY`: Your Google AI API key.
+- `ANTHROPIC_API_KEY`: Your Anthropic Claude API key.
 - `JWT_SECRET`: Secret used for token signing (must match between Backend and AI).
 - `DB_PASSWORD`: PostgreSQL password.
 - `DB_NAME`: Database name.

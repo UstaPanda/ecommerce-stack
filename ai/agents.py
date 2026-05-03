@@ -1,6 +1,6 @@
 from typing import TypedDict, Optional, List, Any, Annotated
 import operator
-from langchain_google_genai import ChatGoogleGenerativeAI
+from langchain_anthropic import ChatAnthropic
 from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
 from langchain_core.output_parsers import StrOutputParser
 from langchain_core.messages import BaseMessage, HumanMessage, AIMessage
@@ -16,24 +16,22 @@ logger = logging.getLogger("AI-Agents")
 
 load_dotenv()
 
-# Initialize direct Google Gemini API
-google_api_key = os.getenv("GOOGLE_API_KEY")
-if not google_api_key:
-    logger.critical("GOOGLE_API_KEY not found in environment.")
+# Initialize direct Anthropic Claude API
+anthropic_api_key = os.getenv("ANTHROPIC_API_KEY")
+if not anthropic_api_key:
+    logger.critical("ANTHROPIC_API_KEY not found in environment.")
 
-# Model IDs for robustness (Original specific order for high RPM/RPD)
+# Model IDs for robustness (Order for fallback)
 model_names = [
-    "gemini-3.1-flash-lite-preview", 
-    "gemini-2.5-flash-lite",
-    "gemini-3-flash-preview",
-    "gemini-2.5-flash",
-    "gemini-2.0-flash"
+    "claude-3-7-sonnet-latest",
+    "claude-3-5-sonnet-latest",
+    "claude-3-5-haiku-latest"
 ]
 
 def create_llm_chain(temperature=0):
-    """Creates a Gemini LLM with fallbacks."""
+    """Creates a Claude LLM with fallbacks."""
     llms = [
-        ChatGoogleGenerativeAI(model=name, google_api_key=google_api_key, temperature=temperature, max_retries=2) 
+        ChatAnthropic(model_name=name, anthropic_api_key=anthropic_api_key, temperature=temperature, max_retries=2) 
         for name in model_names
     ]
     return llms[0].with_fallbacks(llms[1:])
@@ -90,9 +88,10 @@ def guardrail_node(state: AgentState):
             ("system", "You are the security guardrail for **ZorluKurt Trading**. "
                        "Validate requests based on these PERMISSIONS:\n\n"
                        "1. PUBLIC DATA: Products, categories, reviews.\n"
-                       "2. PERSONAL DATA: Only allowed for the OWN user/store.\n"
-                       "3. SENSITIVE MARKET DATA: Restricted to ADMIN.\n\n"
+                       "2. PERSONAL DATA: Users CAN query their own orders, order history, spending, carts, profile, and store data.\n"
+                       "3. SENSITIVE MARKET DATA: General market data, other users' data, and total platform revenue are restricted to ADMIN.\n\n"
                        "Current Context: Role={user_role}\n\n"
+                       "If the query asks for personal data (e.g., 'my orders', 'my spending', 'my history'), strictly classify it as 'IN_SCOPE'.\n"
                        "Respond in the user's language."),
             MessagesPlaceholder(variable_name="history"),
             ("human", "{question}")

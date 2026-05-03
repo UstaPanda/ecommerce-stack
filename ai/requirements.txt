@@ -1,6 +1,6 @@
 langgraph
 langchain
-langchain-google-genai
+langchain-anthropic
 psycopg2-binary
 pandas
 plotly
