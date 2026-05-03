@@ -121,21 +121,23 @@ def sql_agent_node(state: AgentState):
                        "Generate exactly ONE raw PostgreSQL query.\n\n"
                        "PUBLIC DATA (no user filter, applies to ALL roles including INDIVIDUAL):\n"
                        "- 'products', 'categories', 'stores', 'reviews' tables are PUBLIC.\n"
-                       "- Questions about popular products, best sellers, product listings, store info, categories → query WITHOUT any user_id filter.\n\n"
+                       "- Questions about product listings, store info, ratings, and categories → query WITHOUT any user_id filter.\n\n"
                        "RBAC Rules for PERSONAL data (STRICT):\n"
                        "- ADMIN: Full access to all tables, no filters.\n"
                        "- CORPORATE: \n"
                        "  * Accessing 'stores': Filter by 'owner_id = {user_id}'.\n"
                        "  * Accessing 'orders', 'order_items': MUST JOIN with 'stores' and filter by 'stores.owner_id = {user_id}'.\n"
                        "  * Accessing 'shipments': Join with 'orders' and 'stores', filter by 'stores.owner_id = {user_id}'.\n"
-                       "- INDIVIDUAL: Filter by 'user_id = {user_id}' ONLY on personal tables: 'orders', 'customer_profiles', 'carts', 'cart_items' (join carts on carts.user_id).\n"
-                       "  * NEVER add user_id filter when querying 'products', 'categories', or 'reviews'.\n\n"
+                       "- INDIVIDUAL: Filter by 'user_id = {user_id}' ONLY on personal tables: 'orders', 'customer_profiles', 'carts', 'cart_items'.\n\n"
+                       "COMPETITOR ANALYSIS (NON-ADMINS):\n"
+                       "- You are STICKTLY FORBIDDEN from querying 'orders' or 'order_items' for stores that do not belong to the user.\n"
+                       "- To identify 'competitors' or 'biggest stores' for non-admins, use PUBLIC metrics: 'COUNT(products)' or 'AVG(reviews.rating)'. NEVER use revenue or sales volume.\n\n"
                        "IMPORTANT RULES:\n"
-                       "- STORE REVENUE & ORDERS (CRITICAL): When calculating total orders or revenue for a store, YOU MUST QUERY THE 'orders' TABLE DIRECTLY (GROUP BY orders.store_id). YOU ARE STRICTLY FORBIDDEN from calculating store revenue by joining 'products', 'order_items', and 'orders'. That approach misattributes revenue based on product ownership rather than order ownership.\n"
-                       "- ANTI-FAN-OUT: NEVER join 'orders' and 'reviews' in the same flat query. This causes Cartesian Products (billion-dollar errors). ALWAYS use separate CTEs for orders (revenue, count) and products/reviews (ratings) and join them at the very end on store_id.\n"
-                       "- REVENUE CALCULATIONS: When calculating revenue or total sales, ALWAYS exclude orders with status 'CANCELLED' or 'RETURNED' (status NOT IN ('CANCELLED', 'RETURNED')).\n"
-                       "- Always use LEFT JOIN (never INNER JOIN) for optional data tables like order_items, reviews, shipments.\n"
-                       "- Never use SQL line comments (--) inside the query.\n\n"
+                       "- STORE REVENUE & ORDERS (CRITICAL): When calculating total orders or revenue for a store (that the user OWNS), YOU MUST QUERY THE 'orders' TABLE DIRECTLY (GROUP BY orders.store_id).\n"
+                       "- ANTI-FAN-OUT: NEVER join 'orders' and 'reviews' in the same flat query. Use separate CTEs.\n"
+                       "- REVENUE CALCULATIONS: ALWAYS exclude orders with status 'CANCELLED' or 'RETURNED'.\n"
+                       "- Always use LEFT JOIN for optional data tables.\n"
+                       "- Never use SQL line comments (--).\n\n"
                        "Return ONLY raw SQL inside markdown: ```sql [QUERY] ```\n\n"
                        "Schema:\n{schema}"),
             MessagesPlaceholder(variable_name="history"),
@@ -237,6 +239,17 @@ def visualization_node(state: AgentState):
                        "IMPORTANT: Do NOT use fig.show() or any command that opens a browser. Assign the chart to the variable 'fig' only.\n"
                        "Return ONLY raw python code."),
             ("human", "{question}. Results: {results}")
+        ])
+        viz_code = (prompt | llm_creative | StrOutputParser()).invoke({
+            "question": state["question"], 
+            "results": str(state["query_result"]),
+            "detected_language": state.get("detected_language", "English")
+        })
+        return {"visualization_code": clean_output(viz_code)}
+    except Exception as e:
+        logger.error(f"Visualization node failed: {e}")
+        return {"visualization_code": None}
+
         ])
         viz_code = (prompt | llm_creative | StrOutputParser()).invoke({
             "question": state["question"], 
