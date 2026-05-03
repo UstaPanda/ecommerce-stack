@@ -262,6 +262,3 @@ def visualization_node(state: AgentState):
     except Exception as e:
         logger.error(f"Visualization node failed: {e}")
         return {"visualization_code": None}
-n as e:
-        logger.error(f"Visualization node failed: {e}")
-        return {"visualization_code": None}
