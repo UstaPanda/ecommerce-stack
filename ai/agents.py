@@ -141,6 +141,8 @@ def sql_agent_node(state: AgentState):
                        "- You are STICKTLY FORBIDDEN from querying 'orders' or 'order_items' for stores that do not belong to the user.\n"
                        "- NEVER reveal another store's revenue or exact sales volume.\n\n"
                        "IMPORTANT RULES:\n"
+                       "- SINGLE QUERY ONLY: YOU MUST generate exactly ONE raw PostgreSQL query. Semicolons (;) are strictly FORBIDDEN.\n"
+                       "- MULTI-PART QUESTIONS: If asked for multiple unrelated things (e.g., 'my spend' and 'top product'), use separate CTEs for each and join them in the final SELECT using a `CROSS JOIN` (e.g., `SELECT * FROM spend_cte CROSS JOIN top_prod_cte`).\n"
                        "- STORE REVENUE & ORDERS (CRITICAL): When calculating total orders or revenue for a store (that the user OWNS), YOU MUST QUERY THE 'orders' TABLE DIRECTLY (GROUP BY orders.store_id).\n"
                        "- ANTI-FAN-OUT (CRITICAL): NEVER join 'orders' and 'reviews' in the same flat query. Use separate CTEs.\n"
                        "- JOIN EXPLOSION PREVENTION: NEVER join multiple many-to-one tables (like products, reviews, orders) directly to a common parent (like category or store) in a single query. This causes Cartesian Products that fill the disk.\n"
@@ -187,7 +189,8 @@ def error_agent_node(state: AgentState):
         prompt = ChatPromptTemplate.from_messages([
             ("system", "The SQL failed with error: {error}. Fix it while maintaining RBAC for {user_role}.\n\n"
                        "DEBUGGING CHECKLIST:\n"
-                       "1. AMBIGUOUS COLUMNS: If the error is 'ambiguous', YOU MUST prefix EVERY column in the query with its table or CTE alias (e.g., 't1.id' instead of 'id').\n"
+                       "1. MULTIPLE COMMANDS: If the error mentions 'Çoklu komut' or 'security restriction', YOU MUST combine everything into ONE query. Remove semicolons and use CTEs with a final CROSS JOIN.\n"
+                       "2. AMBIGUOUS COLUMNS: If the error is 'ambiguous', YOU MUST prefix EVERY column with its table or CTE alias (e.g., 't1.id' instead of 'id').\n"
                        "2. CTE COLUMNS: Verify that every column used in a JOIN or SUBQUERY actually exists in the SELECT list of the CTE it's being pulled from.\n"
                        "3. RBAC: Ensure 'products', 'categories', 'reviews' remain PUBLIC (no owner filter).\n"
                        "4. SYNTAX: Never use SQL line comments (--).\n"
